@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: telegram-post
+  group: repo-autopost
   cancel-in-progress: false
 
 jobs:

@@ -1,0 +1,44 @@
+name: Threads — пост дня
+
+on:
+  schedule:
+    - cron: '7 16 * * *'   # каждый день в 19:07 по Москве
+  push:
+    branches: [main]
+    paths: ['threads/run-now.txt']   # запуск вручную: записать дату в этот файл
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Дата поста ГГГГ-ММ-ДД (пусто = сегодня)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-autopost
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Опубликовать
+        env:
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ "${{ github.event_name }}" = "push" ]; then DATE="$(tr -d ' \n' < threads/run-now.txt)"; fi
+          python threads/post.py "$DATE"
+      - name: Отметить опубликованное
+        run: |
+          git config user.name "renviks-bot"
+          git config user.email "renviks-bot@users.noreply.github.com"
+          git add threads/posted.txt
+          git diff --cached --quiet || (git commit -m "Threads: отмечен опубликованный пост" && git pull --rebase -q && git push)
