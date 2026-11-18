@@ -3,6 +3,9 @@ name: Телеграм — пост дня
 on:
   schedule:
     - cron: '13 7 * * *'   # каждый день в 10:13 по Москве
+  push:
+    branches: [main]
+    paths: ['telegram/run-now.txt']   # запуск вручную: записать дату в этот файл
   workflow_dispatch:
     inputs:
       date:
@@ -34,7 +37,10 @@ jobs:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           FORCE: ${{ github.event.inputs.force }}
-        run: python telegram/post.py "${{ github.event.inputs.date }}"
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ "${{ github.event_name }}" = "push" ]; then DATE="$(tr -d ' \n' < telegram/run-now.txt)"; fi
+          python telegram/post.py "$DATE"
       - name: Отметить опубликованное
         run: |
           git config user.name "renviks-bot"
