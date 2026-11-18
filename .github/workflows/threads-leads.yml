@@ -1,8 +1,7 @@
 name: Threads — поиск постов для ответов
 
 on:
-  schedule:
-    - cron: '37 8 * * *'   # 11:37 по Москве, к 12:00 подборка готова
+  # расписание выключено: Meta пока не даёт приложению доступ к поиску (threads_keyword_search требует проверки приложения)
   push:
     branches: [main]
     paths: ['threads/leads-run-now.txt']
