@@ -1,0 +1,43 @@
+name: Телеграм — пост дня
+
+on:
+  schedule:
+    - cron: '13 7 * * *'   # каждый день в 10:13 по Москве
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Дата поста ГГГГ-ММ-ДД (пусто = сегодня)'
+        required: false
+        default: ''
+      force:
+        description: 'Опубликовать повторно, даже если уже было (1 = да)'
+        required: false
+        default: '0'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Опубликовать
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: python telegram/post.py "${{ github.event.inputs.date }}"
+      - name: Отметить опубликованное
+        run: |
+          git config user.name "renviks-bot"
+          git config user.email "renviks-bot@users.noreply.github.com"
+          git add telegram/posted.txt
+          git diff --cached --quiet || (git commit -m "Телеграм: отмечен опубликованный пост" && git push)
