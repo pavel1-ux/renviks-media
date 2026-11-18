@@ -1,0 +1,59 @@
+{
+ "date": "2026-11-19",
+ "me": {
+  "id": "29244357565227938",
+  "username": "renviks.remont"
+ },
+ "count": 0,
+ "posts": [],
+ "errors": [
+  {
+   "q": "ищу бригаду",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"AhKiG0YKJNJl_ANSKl2Cxgu\"}}"
+  },
+  {
+   "q": "посоветуйте бригаду",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"A7UjJfPskprq9mYlY2-v7ri\"}}"
+  },
+  {
+   "q": "ремонт квартиры москва",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"AYJTOc1eRJZlKUvw-_BuDkl\"}}"
+  },
+  {
+   "q": "ремонт новостройки",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"type\":\"THApiException\",\"code\":10,\"fbtrace_id\":\"AX15VCvaukorgEEQDiOaQAC\"}}"
+  },
+  {
+   "q": "получили ключи",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"AMkBdgdHZJdNpW58gS7ChQ5\"}}"
+  },
+  {
+   "q": "приемка квартиры",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"type\":\"THApiException\",\"code\":10,\"fbtrace_id\":\"ASEYukM2NcU8uF39iEACYER\"}}"
+  },
+  {
+   "q": "ищу прораба",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"A-FdH1eXATRbJZtzagBc3rJ\"}}"
+  },
+  {
+   "q": "бригада ремонт",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"type\":\"THApiException\",\"code\":10,\"fbtrace_id\":\"AxLHAxVPqTSpfZaZhgwgP8u\"}}"
+  },
+  {
+   "q": "дизайнер интерьера москва",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"AGCaFm_zdbLNqkka4FPQJqX\"}}"
+  },
+  {
+   "q": "ремонт под ключ",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"type\":\"THApiException\",\"code\":10,\"fbtrace_id\":\"ABwrjZ0LsrgScM4cEDxRt4-\"}}"
+  },
+  {
+   "q": "бригада пропала",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"type\":\"THApiException\",\"code\":10,\"fbtrace_id\":\"ABnfLJiNTMS6DOCKvO1uL3z\"}}"
+  },
+  {
+   "q": "начинаем ремонт",
+   "error": "{\"error\":{\"message\":\"Application does not have permission for this action\",\"code\":10,\"type\":\"THApiException\",\"fbtrace_id\":\"Afworcl2LkhhHEyUs55YP5X\"}}"
+  }
+ ]
+}
