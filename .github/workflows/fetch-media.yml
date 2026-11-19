@@ -22,7 +22,7 @@ jobs:
               [ -z "$name" ] && continue
               case "$name" in \#*) continue;; esac
               [ -f "media/in/$batch/$name" ] && continue
-              curl -fsSL --retry 3 -o "media/in/$batch/$name" "$url"
+              curl -fsSL --retry 6 --retry-all-errors --retry-delay 10 -o "media/in/$batch/$name" "$url" || { echo "FAIL $name"; rm -f "media/in/$batch/$name"; }
             done < "$list"
           done
       - name: Commit
