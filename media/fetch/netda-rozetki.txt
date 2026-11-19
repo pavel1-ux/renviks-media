@@ -1,0 +1,4 @@
+01_moyka_net.jpg https://r2.syntx.ai/user_168332193/generated/ef82dd2f04e73410bc0bdc2796508c4d_4af39d93-fb95-4163-a9a5-1f5213016e76.jpg
+02_moyka_da.jpg https://r2.syntx.ai/user_168332193/generated/e957f9ad151842d9dadf935c2fce9166_3dab88ff-3d7b-4ad1-af83-5d1dca474dd0.jpg
+03_plita_net.jpg https://r2.syntx.ai/user_168332193/generated/b6b81cba5cd1950804f54eb515ece4fc_b85acc98-3ca9-4a0b-8277-225993f345fe.jpg
+04_plita_da.jpg https://r2.syntx.ai/user_168332193/generated/79981685f93ab71787e70b9d2e46507b_f13ed25d-fde4-4220-a904-fcd6213c4e1f.jpg
