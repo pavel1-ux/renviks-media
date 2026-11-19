@@ -1,5 +1,42 @@
-{"id":"vanna-bylo-stalo","title":"Ванная: было / стало + что входит","scenes":[
- {"type":"hook","img":"media/in/etapy-vanna/3_final.jpg","lines":["БЫЛО","СТАЛО"],"sub":"Ванная под ключ за один проект"},
- {"type":"before_after","before":"media/in/etapy-vanna/1_shell.jpg","after":"media/in/etapy-vanna/3_final.jpg","dur":3.2,"enter":"flash"},
- {"type":"checklist","img":"media/in/etapy-vanna/2_eng.jpg","title":"Что входит в работу","items":["Разводка воды и канализации","Тёплый пол и электрика","Гидроизоляция","Плитка с запилом 45°","Сантехника и подсветка"],"dur":4.6,"enter":"zoomblur"},
- {"type":"end_brand","line1":"Ванная под ключ","line2":"с гарантией 3 года"}]}
+{
+ "id": "vanna-bylo-stalo",
+ "title": "Ванная: было / стало + что входит",
+ "scenes": [
+  {
+   "type": "hook",
+   "img": "media/in/etapy-vanna/3_final.jpg",
+   "lines": [
+    "БЫЛО",
+    "СТАЛО"
+   ],
+   "sub": "Ванная под ключ за один проект"
+  },
+  {
+   "type": "before_after",
+   "before": "media/in/etapy-vanna/1_shell.jpg",
+   "after": "media/in/etapy-vanna/3_final.jpg",
+   "dur": 3.2,
+   "enter": "flash"
+  },
+  {
+   "type": "checklist",
+   "img": "media/in/etapy-vanna/2_eng.jpg",
+   "title": "Что входит в работу",
+   "items": [
+    "Разводка воды и канализации",
+    "Тёплый пол и электрика",
+    "Гидроизоляция",
+    "Плитка с запилом 45°",
+    "Сантехника и подсветка"
+   ],
+   "dur": 4.6,
+   "enter": "zoomblur"
+  },
+  {
+   "type": "end_brand",
+   "line1": "Ванная под ключ",
+   "line2": "с гарантией 3 года"
+  }
+ ],
+ "caption": "Было → стало. Ванная под ключ за один проект 👇\n\nЧто входит в работу:\n✅ разводка воды и канализации\n✅ тёплый пол и электрика\n✅ гидроизоляция\n✅ плитка с запилом 45°\n✅ сантехника и подсветка\n\nВы получаете готовую ванную, а не список подрядчиков. Гарантия 3 года.\n\nПланируете ремонт? Пишите: @renviks_moscow\n\n#ремонтванной #ваннаяподключ #ремонтквартир #ремонтмосква #былостало"
+}

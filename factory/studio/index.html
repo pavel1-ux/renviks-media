@@ -60,6 +60,7 @@ textarea:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset
 .edits li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
 .edits li small{display:block;color:var(--mute);font-size:13px}
 .edits li.done{opacity:.6}.edits li.done::before{content:'✓ сделано · ';color:var(--green);font-weight:700}
+.cap{margin-top:14px}.cap pre{white-space:pre-wrap;font:15px/1.5 Montserrat,system-ui,sans-serif;margin:0;max-height:260px;overflow:auto;background:var(--bg);border-radius:12px;padding:12px}
 .note{font-size:13px;color:var(--mute);margin-top:8px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 .toast.on{opacity:1}
@@ -101,6 +102,7 @@ function draw(){const v=curV(),prev=cur.versions.find(x=>x.v===ver-1);
     <textarea id="txt" placeholder="Например: плашку выше, текст крупнее, заменить картинку на более светлую"></textarea>
     <div class="row"><button class="btn mic" id="mic" hidden>Сказать голосом</button><button class="btn main" id="send">Отправить правку</button></div>
     <ul class="edits" id="elist"></ul></div>
+   <div class="box cap"><h3>Подпись к посту</h3><pre id="captxt">${esc(cur.caption||'Подпись появится вместе с рилсом')}</pre><div class="row"><button class="btn main" id="copy">Копировать подпись</button></div></div>
    <div class="row"><button class="btn ok" id="appr">Одобрить v${v.v}</button><button class="btn" id="dlb" hidden>Скачать mp4</button></div>
    <p class="note" id="dbnote"></p></div></div>`;
   const vid=document.getElementById('vid');
@@ -108,7 +110,8 @@ function draw(){const v=curV(),prev=cur.versions.find(x=>x.v===ver-1);
   const cb=document.getElementById('cmpb');if(cb)cb.onclick=()=>{cmp=!cmp;draw()};
   app.querySelectorAll('.sc').forEach(b=>b.onclick=()=>{const s=v.scenes.find(x=>x.n==b.dataset.n);selScene=s.n;vid.currentTime=s.start+0.05;vid.pause();where()});
   vid.addEventListener('timeupdate',()=>{if(vid.paused)return;selScene=null;where()});vid.addEventListener('pause',where);vid.addEventListener('seeked',where);
-  document.getElementById('send').onclick=send;document.getElementById('appr').onclick=approve;
+  document.getElementById('send').onclick=send;
+  document.getElementById('copy').onclick=()=>{const t=cur.caption||'';navigator.clipboard.writeText(t).then(()=>say('Подпись скопирована'),()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('captxt'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);say('Выделил текст — нажмите «Копировать»')})};document.getElementById('appr').onclick=approve;
   const mic=document.getElementById('mic');if(dict){mic.hidden=false;mic.onclick=talk}
   const d=document.getElementById('dlb');if(dl){d.hidden=false;d.onclick=download}
   document.getElementById('dbnote').textContent=db?'':'Правки сохраняются, когда страница открыта в Claude под вашим аккаунтом.';
