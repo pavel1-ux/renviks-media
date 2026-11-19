@@ -1,7 +1,9 @@
 01_moyka_net.jpg https://r2.syntx.ai/user_168332193/generated/ef82dd2f04e73410bc0bdc2796508c4d_4af39d93-fb95-4163-a9a5-1f5213016e76.jpg
 02_moyka_da.jpg https://r2.syntx.ai/user_168332193/generated/e957f9ad151842d9dadf935c2fce9166_3dab88ff-3d7b-4ad1-af83-5d1dca474dd0.jpg
 03_plita_net.jpg https://r2.syntx.ai/user_168332193/generated/b6b81cba5cd1950804f54eb515ece4fc_b85acc98-3ca9-4a0b-8277-225993f345fe.jpg
-04_plita_da.jpg https://r2.syntx.ai/user_168332193/generated/79981685f93ab71787e70b9d2e46507b_f13ed25d-fde4-4220-a904-fcd6213c4e1f.jpg
+04_plita_da.jpg https://r2.syntx.ai/user_168332193/generated/79981685f93ab71787e70b9d2e46507b_f13ed25d-fde4-4220-a904-fcd6213c4e1f.png
 05_udlinitel_net.jpg https://r2.syntx.ai/user_168332193/generated/60bd21bceb81adfd2cef9d4d72fb6560_f2a61c2d-aaa3-47de-aae0-2d9979148fed.jpg
-06_udlinitel_da.jpg https://r2.syntx.ai/user_168332193/generated/cf4524c5f129f44909601f81d1beba8c_fd63c9a0-8552-4179-b812-57c5e66b2d3f.jpg
-07_vytyazhka_net.jpg https://r2.syntx.ai/user_168332193/generated/a6b7347061d35c7a1fe60df26de718d4_a2432bcd-5dfd-4550-808e-ecaa0b2efad7.jpg
+06_udlinitel_da.jpg https://r2.syntx.ai/user_168332193/generated/cf4524c5f129f44909601f81d1beba8c_fd63c9a0-8552-4179-b812-57c5e66b2d3f.png
+07_vytyazhka_net.jpg https://r2.syntx.ai/user_168332193/generated/a6b7347061d35c7a1fe60df26de718d4_a2432bcd-5dfd-4550-808e-ecaa0b2efad7.png
+08a.jpg https://r2.syntx.ai/user_168332193/generated/2b814e2944cfe2296265229c8a3309f8_afdd25d1-986f-467a-b49c-9e382e6cd75f.jpg
+08b.jpg https://r2.syntx.ai/user_168332193/generated/097d50b2821feade1a85994346e9f476_1c0da596-3d0c-4461-82f3-65a12d6a47c6.jpg
