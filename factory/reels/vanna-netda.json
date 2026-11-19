@@ -10,7 +10,8 @@
     "КОМНАТА"
    ],
    "marks": true,
-   "sub": "4 ошибки, которые дорого исправлять"
+   "sub": "4 ошибки, которые дорого исправлять",
+   "dur": 2.2
   },
   {
    "img": "media/in/netda-vanna-plitka/b1_net.jpg",
@@ -22,7 +23,8 @@
    "ring": 170,
    "type": "photo",
    "kind": "net",
-   "counter": "1/4"
+   "counter": "1/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b1_da.jpg",
@@ -35,7 +37,8 @@
    "mark_dx": -190,
    "type": "photo",
    "kind": "da",
-   "counter": "1/4"
+   "counter": "1/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b2_net.jpg",
@@ -47,7 +50,8 @@
    "ring": 230,
    "type": "photo",
    "kind": "net",
-   "counter": "2/4"
+   "counter": "2/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b2_da.jpg",
@@ -60,7 +64,8 @@
    "mark_dx": -210,
    "type": "photo",
    "kind": "da",
-   "counter": "2/4"
+   "counter": "2/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b3_net.jpg",
@@ -72,7 +77,8 @@
    "ring": 250,
    "type": "photo",
    "kind": "net",
-   "counter": "3/4"
+   "counter": "3/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b3_da.jpg",
@@ -84,7 +90,8 @@
    "ring": 220,
    "type": "photo",
    "kind": "da",
-   "counter": "3/4"
+   "counter": "3/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b4_net.jpg",
@@ -96,7 +103,8 @@
    "ring": 210,
    "type": "photo",
    "kind": "net",
-   "counter": "4/4"
+   "counter": "4/4",
+   "dur": 1.9
   },
   {
    "img": "media/in/netda-vanna-plitka/b4_da.jpg",
@@ -109,12 +117,14 @@
    "mark_dx": -260,
    "type": "photo",
    "kind": "da",
-   "counter": "4/4"
+   "counter": "4/4",
+   "dur": 1.9
   },
   {
    "type": "end_brand",
    "line1": "Ванную делаем один раз",
-   "line2": "и надолго"
+   "line2": "и надолго",
+   "dur": 3.0
   }
  ]
 }
