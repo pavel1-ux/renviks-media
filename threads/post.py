@@ -51,6 +51,9 @@ def main():
     posted_path = os.path.join(ROOT, 'posted.txt')
     posted = set(open(posted_path, encoding='utf-8').read().split()) if os.path.exists(posted_path) else set()
     files = sorted(glob.glob(os.path.join(ROOT, 'queue', f'{day}*.json')))
+    slot = os.environ.get('SLOT', '').strip()
+    if slot:  # по расписанию: утром только -1, вечером только -2
+        files = [f for f in files if f.endswith(f'-{slot}.json')]
     if not files:
         print(f'На {day} постов нет.')
     for f in files:
