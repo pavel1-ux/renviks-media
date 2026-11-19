@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Студия РЕНВИКС</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: рабочая монтажная — спокойно, быстро, крупные кнопки под палец
+   IDEA: монтажный стол: плёнка-лента сцен под видео, бирки версий
+   PICTURE: сам плеер рилса, вертикальный, с лентой сцен
+   COLOUR and TYPE: фирменный тёмно-синий РЕНВИКС, золото — акцент; Montserrat, как в рилсах
+   LAYOUT: телефон: плеер → лента сцен → правка; шире 900px — плеер слева, работа справа */
+:root{color-scheme:light dark;--bg:light-dark(#f3f1ea,#0c1626);--card:light-dark(#ffffff,#14223a);--ink:light-dark(#121a26,#f2f0ea);--mute:light-dark(#5d6573,#9aa6b8);--line:light-dark(#dcd8cc,#24344f);--gold:#d6ac2c;--red:#e8343a;--green:#22b45c}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Montserrat,system-ui,sans-serif;overflow-x:clip}
+button,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:12px;padding:14px max(4vw,14px);border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+header h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.02em}
+header .back{display:none;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+body.in-reel header .back{display:inline-flex;align-items:center}
+.sub{color:var(--mute);font-size:13px}
+main{max-width:1240px;margin:0 auto;padding:16px max(4vw,14px) 60px}
+/* список рилсов */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;text-align:left;padding:0}
+.tile img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#000}
+.tile div{padding:10px 12px 12px}.tile b{display:block;font-size:14px;line-height:1.3}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;margin-top:6px;background:var(--line)}
+.badge.ok{background:var(--green);color:#fff}.badge.edit{background:var(--gold);color:#121a26}
+/* экран рилса */
+.reel{display:grid;gap:18px}
+@media(min-width:900px){.reel{grid-template-columns:minmax(0,380px) minmax(0,1fr);align-items:start}.player{position:sticky;top:78px}}
+.player video{display:block;margin:0 auto;height:min(64vh,680px);max-width:100%;aspect-ratio:9/16;background:#000;border-radius:18px}
+@media(min-width:900px){.player video{height:auto;width:100%}}
+.cmp video{height:auto;width:100%}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cmp video{border-radius:12px}.cmp .sub{text-align:center}
+h2{font-size:26px;line-height:1.1;margin:0 0 6px;text-wrap:balance}
+.vers{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:700;font-size:14px}
+.chip.on{background:var(--gold);color:#121a26;border-color:var(--gold)}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
+.sc{flex:none;width:86px;scroll-snap-align:start;border:2px solid transparent;border-radius:12px;background:var(--card);padding:0;cursor:pointer;overflow:hidden;text-align:left}
+.sc.on{border-color:var(--gold)}.sc img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover}
+.sc span{display:block;font-size:11px;padding:4px 6px;line-height:1.25;color:var(--mute)}.sc span b{color:var(--ink)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.box h3{margin:0 0 10px;font-size:17px}
+.where{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;font-size:14px}
+.where span{background:var(--line);border-radius:10px;padding:4px 10px;font-weight:600}
+textarea{width:100%;min-height:96px;border-radius:14px;border:1px solid var(--line);background:var(--bg);padding:12px;font-size:16px;resize:vertical}
+textarea:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.btn{min-height:48px;padding:0 18px;border-radius:14px;border:0;font-weight:800;cursor:pointer;background:var(--line)}
+.btn.main{background:var(--gold);color:#121a26}.btn.ok{background:var(--green);color:#fff}
+.btn.mic.rec{background:var(--red);color:#fff}
+.btn[hidden]{display:none}
+.edits{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.edits li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.edits li small{display:block;color:var(--mute);font-size:13px}
+.edits li.done{opacity:.6}.edits li.done::before{content:'✓ сделано · ';color:var(--green);font-weight:700}
+.note{font-size:13px;color:var(--mute);margin-top:8px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<header><button class="back" id="back" aria-label="Ко всем рилсам">← Все</button><div><h1>Студия РЕНВИКС</h1><div class="sub" id="upd">рилсы, версии и правки</div></div></header>
+<main id="app"><p class="sub">Загрузка…</p></main>
+<div class="toast" id="toast"></div>
+<script>
+{
+const app=document.getElementById('app'),toast=document.getElementById('toast');
+let M=null,db=null,me=null,dict=null,dl=null,edits=[],states={},cur=null,ver=null,cmp=false,selScene=null;
+const fmt=s=>{s=Math.max(0,s);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')+'.'+Math.floor((s%1)*10)};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const say=t=>{toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),2200)};
+const vurl=(r,v)=>`reels/${r}/v${v}/reel.mp4`;
+function rows(snap){if(!snap)return[];const ds=snap.docs||snap.items||snap;return Array.from(ds).map(d=>{const data=typeof d.data==='function'?d.data():(d.data||d);return Object.assign({id:d.id},data)})}
+function status(r){const s=states[r.id];const last=r.versions[r.versions.length-1].v;
+  if(s&&s.approved_v===last)return['ok','одобрен v'+last];
+  const open=edits.filter(e=>e.reel===r.id&&e.status!=='done').length;
+  return open?['edit','правок: '+open]:['','v'+last+' · ждёт просмотра']}
+function list(){document.body.classList.remove('in-reel');cur=null;
+  app.innerHTML=`<div class="grid">${M.reels.map(r=>{const v=r.versions[r.versions.length-1],[c,t]=status(r);
+   return `<button class="tile" data-id="${r.id}"><img src="reels/${r.id}/v${v.v}/${v.scenes[0].thumb}" alt=""><div><b>${esc(r.title)}</b><span class="sub">${v.duration} с · ${v.scenes.length} сцен</span><br><span class="badge ${c}">${t}</span></div></button>`}).join('')}</div>
+   <p class="note">Откройте рилс, посмотрите и оставьте правку: остановите видео в нужном месте или нажмите на сцену, скажите или напишите, что поменять. Claude получит время, номер сцены и ваш текст и пришлёт новую версию сюда же.</p>`;
+  app.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{location.hash='r-'+b.dataset.id})}
+function sceneAt(t){const v=curV();return v.scenes.find(s=>t>=s.start&&t<s.end)||v.scenes[v.scenes.length-1]}
+function curV(){return cur.versions.find(x=>x.v===ver)}
+function open(id){cur=M.reels.find(r=>r.id===id);if(!cur){list();return}document.body.classList.add('in-reel');
+  ver=ver&&cur.versions.some(x=>x.v===ver)?ver:cur.versions[cur.versions.length-1].v;selScene=null;draw()}
+function draw(){const v=curV(),prev=cur.versions.find(x=>x.v===ver-1);
+  app.innerHTML=`<div class="reel"><div class="player">${cmp&&prev?`<div class="cmp"><div><video src="${vurl(cur.id,prev.v)}" controls playsinline preload="metadata"></video><div class="sub">v${prev.v} · было</div></div><div><video id="vid" src="${vurl(cur.id,v.v)}" controls playsinline preload="metadata"></video><div class="sub">v${v.v} · стало</div></div></div>`:`<video id="vid" src="${vurl(cur.id,v.v)}" controls playsinline preload="metadata"></video>`}</div>
+  <div><h2>${esc(cur.title)}</h2><div class="sub">v${v.v} · ${esc(v.date)} · ${v.duration} с${v.note?' · '+esc(v.note):''}</div>
+   <div class="vers">${cur.versions.map(x=>`<button class="chip ${x.v===ver?'on':''}" data-v="${x.v}">v${x.v}</button>`).join('')}${prev?`<button class="chip ${cmp?'on':''}" id="cmpb">Сравнить с v${prev.v}</button>`:''}</div>
+   <div class="strip">${v.scenes.map(s=>`<button class="sc" data-n="${s.n}"><img src="reels/${cur.id}/v${v.v}/${s.thumb}" alt=""><span><b>${s.n}</b> · ${fmt(s.start)}<br>${esc(s.label).slice(0,40)}</span></button>`).join('')}</div>
+   <div class="box"><h3>Правка</h3><div class="where" id="where"></div>
+    <textarea id="txt" placeholder="Например: плашку выше, текст крупнее, заменить картинку на более светлую"></textarea>
+    <div class="row"><button class="btn mic" id="mic" hidden>Сказать голосом</button><button class="btn main" id="send">Отправить правку</button></div>
+    <ul class="edits" id="elist"></ul></div>
+   <div class="row"><button class="btn ok" id="appr">Одобрить v${v.v}</button><button class="btn" id="dlb" hidden>Скачать mp4</button></div>
+   <p class="note" id="dbnote"></p></div></div>`;
+  const vid=document.getElementById('vid');
+  app.querySelectorAll('.chip[data-v]').forEach(b=>b.onclick=()=>{ver=+b.dataset.v;cmp=false;draw()});
+  const cb=document.getElementById('cmpb');if(cb)cb.onclick=()=>{cmp=!cmp;draw()};
+  app.querySelectorAll('.sc').forEach(b=>b.onclick=()=>{const s=v.scenes.find(x=>x.n==b.dataset.n);selScene=s.n;vid.currentTime=s.start+0.05;vid.pause();where()});
+  vid.addEventListener('timeupdate',()=>{if(vid.paused)return;selScene=null;where()});vid.addEventListener('pause',where);vid.addEventListener('seeked',where);
+  document.getElementById('send').onclick=send;document.getElementById('appr').onclick=approve;
+  const mic=document.getElementById('mic');if(dict){mic.hidden=false;mic.onclick=talk}
+  const d=document.getElementById('dlb');if(dl){d.hidden=false;d.onclick=download}
+  document.getElementById('dbnote').textContent=db?'':'Правки сохраняются, когда страница открыта в Claude под вашим аккаунтом.';
+  where();elist()}
+function where(){const vid=document.getElementById('vid');if(!vid)return;const t=vid.currentTime||0,s=selScene?curV().scenes.find(x=>x.n===selScene):sceneAt(t);
+  app.querySelectorAll('.sc').forEach(b=>b.classList.toggle('on',+b.dataset.n===s.n));
+  document.getElementById('where').innerHTML=`<span>${fmt(selScene?s.start:t)}</span><span>Сцена ${s.n}</span><span>${esc(s.label).slice(0,32)}</span>`}
+function elist(){const ul=document.getElementById('elist');if(!ul)return;const mine=edits.filter(e=>e.reel===cur.id).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  ul.innerHTML=mine.map(e=>`<li class="${e.status==='done'?'done':''}">${esc(e.text)}<small>v${e.v} · ${fmt(e.t)} · сцена ${e.scene}${e.reply?' — '+esc(e.reply):''}</small></li>`).join('')||'<li class="sub">Правок пока нет</li>'}
+async function send(){const ta=document.getElementById('txt'),text=ta.value.trim();if(!text){say('Напишите или скажите правку');return}
+  if(!db){say('Нет связи с Claude: откройте страницу в приложении Claude');return}
+  const vid=document.getElementById('vid'),t=vid.currentTime||0,s=selScene?curV().scenes.find(x=>x.n===selScene):sceneAt(t);
+  const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const e={reel:cur.id,v:ver,t:+(selScene?s.start:t).toFixed(1),scene:s.n,label:s.label,text,status:'new',ts:Date.now(),by:me||''};
+  try{await db.collection('edits').doc(id).set(e);edits.push(Object.assign({id},e));ta.value='';elist();say('Правка отправлена')}catch(err){say('Не сохранилось: '+(err&&err.message||err))}}
+async function approve(){if(!db){say('Нет связи с Claude');return}
+  try{await db.collection('reels').doc(cur.id).set({approved_v:ver,ts:Date.now()});states[cur.id]={approved_v:ver};say('Версия v'+ver+' одобрена')}catch(err){say('Не сохранилось')}}
+async function download(){try{const b=await (await fetch(vurl(cur.id,ver))).blob();await dl.save({filename:`${cur.id}-v${ver}.mp4`,data:b});}catch(err){say('Скачивание отменено')}}
+function talk(){const mic=document.getElementById('mic'),ta=document.getElementById('txt');
+  if(mic.classList.contains('rec')){dict.stop().catch(()=>{});return}
+  const base=ta.value?ta.value.trim()+' ':'';let fin='';
+  dict.onPartial(({text})=>{ta.value=base+fin+text});dict.onFinal(({text})=>{fin+=text+' ';ta.value=base+fin});
+  dict.onState(({state})=>{mic.classList.toggle('rec',state==='listening');mic.textContent=state==='listening'?'Стоп':'Сказать голосом'});
+  dict.start().catch(e=>{say(String(e&&e.message||e).includes('not_granted')?'Микрофон не разрешён':'Не удалось включить микрофон')})}
+function route(){const h=location.hash.slice(1);if(h.startsWith('r-'))open(h.slice(2));else list()}
+document.getElementById('back').onclick=()=>{location.hash=''};
+window.addEventListener('hashchange',route);
+fetch('manifest.json').then(r=>r.json()).then(m=>{M=m;document.getElementById('upd').textContent='обновлено '+m.updated;route()}).catch(()=>{app.innerHTML='<p>Не удалось загрузить список рилсов.</p>'});
+(async()=>{if(!window.claude)return;
+  try{dict=await claude.use('dictation')}catch(e){}try{dl=await claude.use('downloads')}catch(e){}
+  try{const u=await claude.use('user');if(u)me=await u.id().catch(()=>'')}catch(e){}
+  try{db=await claude.use('db')}catch(e){db=null}
+  if(db){try{db.collection('edits').onSnapshot(s=>{edits=rows(s);if(cur)elist();else if(M)list()},()=>{});
+           db.collection('reels').onSnapshot(s=>{states={};rows(s).forEach(r=>states[r.id]=r);if(!cur&&M)list()},()=>{})}catch(e){}}
+  if(M&&!cur)route();else if(cur){const m=document.getElementById('mic');if(dict&&m){m.hidden=false;m.onclick=talk}const d=document.getElementById('dlb');if(dl&&d){d.hidden=false;d.onclick=download}const n=document.getElementById('dbnote');if(n&&db)n.textContent=''}})();
+}
+</script>
+</body>
+</html>
