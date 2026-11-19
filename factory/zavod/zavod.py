@@ -79,10 +79,18 @@ class Reel:
         def add(s, at, g=1.0):
             i = max(0, int(at * SR)); seg = s[:max(0, len(buf) - i)] * g; buf[i:i + len(seg)] += seg
         if self.cfg.get('ambient'): add(sfx('room')[:len(buf)], 0)
+        vo = self.cfg.get('voice'); duck = 1.0
+        if vo:
+            src = vo['file'] if os.path.isabs(vo['file']) else os.path.join(ROOT, vo['file'])
+            raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', src, '-af', f"atempo={vo.get('tempo', 1.0)}", '-f', 's16le', '-ac', '1', '-ar', str(SR), '-'],
+                                 capture_output=True, check=True).stdout
+            v = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768 * vo.get('gain', 1.0)
+            if len(v) > len(buf): buf = np.concatenate([buf, np.zeros(len(v) - len(buf))])
+            add(v / max(1e-6, np.abs(v).max()) * 0.95, vo.get('offset', 0.0)); duck = vo.get('sfx_gain', 0.45)
         for sc, st in zip(self.scenes, self.starts):
-            if sc.enter in ('flash', 'zoomblur') and st > 0: add(sfx('whoosh_long' if sc.enter == 'zoomblur' else 'whoosh'), st - 0.25)
-            if sc.enter == 'zoomblur' and st > 0: add(sfx('boom'), st + 0.15, 0.8)
-            for t, name, g in sc.events(): add(sfx(name), st + t, g)
+            if sc.enter in ('flash', 'zoomblur') and st > 0: add(sfx('whoosh_long' if sc.enter == 'zoomblur' else 'whoosh'), st - 0.25, duck)
+            if sc.enter == 'zoomblur' and st > 0: add(sfx('boom'), st + 0.15, 0.8 * duck)
+            for t, name, g in sc.events(): add(sfx(name), st + t, g * duck)
         buf = np.tanh(buf * 1.1)
         with wave.open(path, 'wb') as w:
             w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((buf * 30000).astype(np.int16).tobytes())
