@@ -1,0 +1,38 @@
+{
+ "id": "vanna-etapy",
+ "title": "Ванная: от бетона до SPA",
+ "ambient": true,
+ "scenes": [
+  {
+   "type": "stage",
+   "img": "media/in/etapy-vanna/1_shell.jpg",
+   "dur": 1.65,
+   "z0": 1.0,
+   "z1": 1.05
+  },
+  {
+   "type": "stage",
+   "img": "media/in/etapy-vanna/2_eng.jpg",
+   "dur": 1.7,
+   "enter": "zoomblur",
+   "z0": 1.03,
+   "z1": 1.06
+  },
+  {
+   "type": "stage",
+   "img": "media/in/etapy-vanna/3_final.jpg",
+   "dur": 5.1,
+   "enter": "zoomblur",
+   "z0": 1.02,
+   "z1": 1.12,
+   "focus": [
+    540,
+    1056
+   ]
+  },
+  {
+   "type": "end_logo",
+   "dur": 1.5
+  }
+ ]
+}

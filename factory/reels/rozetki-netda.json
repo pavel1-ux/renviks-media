@@ -1,0 +1,135 @@
+{
+ "id": "rozetki-netda",
+ "title": "Розетки на кухне: НЕТ / ДА",
+ "scenes": [
+  {
+   "type": "hook",
+   "img": "media/in/netda-rozetki/01_moyka_net.jpg",
+   "lines": [
+    "РОЗЕТКИ",
+    "НА КУХНЕ"
+   ],
+   "marks": true,
+   "sub": "4 ошибки, которые видно сразу"
+  },
+  {
+   "img": "media/in/netda-rozetki/01_moyka_net.jpg",
+   "focus": [
+    285,
+    1035
+   ],
+   "text": "Розетки над мойкой",
+   "ring": 170,
+   "type": "photo",
+   "kind": "net",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/02_moyka_da.jpg",
+   "focus": [
+    780,
+    895
+   ],
+   "text": "Сбоку, подальше от мойки",
+   "ring": 130,
+   "mark_dx": -120,
+   "dim": [
+    [
+     440,
+     1030
+    ],
+    [
+     735,
+     1030
+    ],
+    "≥ 60 см"
+   ],
+   "type": "photo",
+   "kind": "da",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/03_plita_net.jpg",
+   "focus": [
+    549,
+    954
+   ],
+   "text": "Розетка за плитой",
+   "ring": 120,
+   "type": "photo",
+   "kind": "net",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/04_plita_da.jpg",
+   "focus": [
+    216,
+    1069
+   ],
+   "text": "Сбоку от плиты",
+   "ring": 110,
+   "type": "photo",
+   "kind": "da",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/06_udlinitel_da.jpg",
+   "focus": [
+    648,
+    1350
+   ],
+   "text": "Одна розетка и удлинитель",
+   "ring": 200,
+   "mark_dx": 60,
+   "mark_dy": 230,
+   "type": "photo",
+   "kind": "net",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/07_vytyazhka_net.jpg",
+   "focus": [
+    300,
+    1020
+   ],
+   "text": "Блок розеток над столешницей",
+   "ring": 220,
+   "mark_dx": 240,
+   "type": "photo",
+   "kind": "da",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/05_udlinitel_net.jpg",
+   "focus": [
+    700,
+    930
+   ],
+   "text": "Провод вытяжки на виду",
+   "ring": 210,
+   "mark_dx": -230,
+   "mark_dy": 170,
+   "type": "photo",
+   "kind": "net",
+   "counter": "4/4"
+  },
+  {
+   "img": "media/in/netda-rozetki/08b.jpg",
+   "focus": [
+    432,
+    690
+   ],
+   "text": "Провода спрятаны в шкафу",
+   "ring": 170,
+   "mark_dx": 200,
+   "type": "photo",
+   "kind": "da",
+   "counter": "4/4"
+  },
+  {
+   "type": "end_brand",
+   "line1": "Розетки планируем",
+   "line2": "до ремонта, а не после"
+  }
+ ]
+}

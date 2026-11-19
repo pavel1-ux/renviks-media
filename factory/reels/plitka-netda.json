@@ -1,0 +1,117 @@
+{
+ "id": "plitka-netda",
+ "title": "Укладка плитки: НЕТ / ДА",
+ "scenes": [
+  {
+   "type": "hook",
+   "img": "media/in/netda-vanna-plitka/t1_net.jpg",
+   "lines": [
+    "УКЛАДКА",
+    "ПЛИТКИ"
+   ],
+   "marks": true,
+   "sub": "Как отличить хорошую работу"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t1_net.jpg",
+   "focus": [
+    562,
+    990
+   ],
+   "text": "Пластиковый уголок",
+   "ring": 200,
+   "type": "photo",
+   "kind": "net",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t1_da.jpg",
+   "focus": [
+    540,
+    900
+   ],
+   "text": "Запил под 45°",
+   "ring": 220,
+   "type": "photo",
+   "kind": "da",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t2_net.jpg",
+   "focus": [
+    590,
+    945
+   ],
+   "text": "Узкая подрезка у стены",
+   "ring": 200,
+   "type": "photo",
+   "kind": "net",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t2_da.jpg",
+   "focus": [
+    540,
+    900
+   ],
+   "text": "Продуманная раскладка",
+   "ring": 280,
+   "type": "photo",
+   "kind": "da",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t3_net.jpg",
+   "focus": [
+    562,
+    990
+   ],
+   "text": "Кривые швы и перепады",
+   "ring": 230,
+   "type": "photo",
+   "kind": "net",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t3_da.jpg",
+   "focus": [
+    450,
+    900
+   ],
+   "text": "Ровные швы, плоская стена",
+   "ring": 230,
+   "type": "photo",
+   "kind": "da",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t4_net.jpg",
+   "focus": [
+    495,
+    945
+   ],
+   "text": "Розетка на стыке плиток",
+   "ring": 190,
+   "type": "photo",
+   "kind": "net",
+   "counter": "4/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/t4_da.jpg",
+   "focus": [
+    517,
+    967
+   ],
+   "text": "Розетка по центру плитки",
+   "ring": 170,
+   "type": "photo",
+   "kind": "da",
+   "counter": "4/4"
+  },
+  {
+   "type": "end_brand",
+   "line1": "Принимайте плитку",
+   "line2": "по этим 4 пунктам"
+  }
+ ]
+}

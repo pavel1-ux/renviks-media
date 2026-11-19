@@ -1,0 +1,120 @@
+{
+ "id": "vanna-netda",
+ "title": "Ванная: НЕТ / ДА",
+ "scenes": [
+  {
+   "type": "hook",
+   "img": "media/in/netda-vanna-plitka/b1_net.jpg",
+   "lines": [
+    "ВАННАЯ",
+    "КОМНАТА"
+   ],
+   "marks": true,
+   "sub": "4 ошибки, которые дорого исправлять"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b1_net.jpg",
+   "focus": [
+    640,
+    990
+   ],
+   "text": "Розетка у самой ванны",
+   "ring": 170,
+   "type": "photo",
+   "kind": "net",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b1_da.jpg",
+   "focus": [
+    975,
+    1080
+   ],
+   "text": "С крышкой, вдали от воды",
+   "ring": 120,
+   "mark_dx": -190,
+   "type": "photo",
+   "kind": "da",
+   "counter": "1/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b2_net.jpg",
+   "focus": [
+    540,
+    1350
+   ],
+   "text": "Вода не уходит в трап",
+   "ring": 230,
+   "type": "photo",
+   "kind": "net",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b2_da.jpg",
+   "focus": [
+    832,
+    1485
+   ],
+   "text": "Уклон пола к трапу",
+   "ring": 190,
+   "mark_dx": -210,
+   "type": "photo",
+   "kind": "da",
+   "counter": "2/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b3_net.jpg",
+   "focus": [
+    562,
+    900
+   ],
+   "text": "Плесень в швах и герметике",
+   "ring": 250,
+   "type": "photo",
+   "kind": "net",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b3_da.jpg",
+   "focus": [
+    540,
+    1125
+   ],
+   "text": "Чистые швы, свежий герметик",
+   "ring": 220,
+   "type": "photo",
+   "kind": "da",
+   "counter": "3/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b4_net.jpg",
+   "focus": [
+    360,
+    1035
+   ],
+   "text": "Нет доступа к трубам",
+   "ring": 210,
+   "type": "photo",
+   "kind": "net",
+   "counter": "4/4"
+  },
+  {
+   "img": "media/in/netda-vanna-plitka/b4_da.jpg",
+   "focus": [
+    810,
+    1035
+   ],
+   "text": "Скрытый люк под плитку",
+   "ring": 230,
+   "mark_dx": -260,
+   "type": "photo",
+   "kind": "da",
+   "counter": "4/4"
+  },
+  {
+   "type": "end_brand",
+   "line1": "Ванную делаем один раз",
+   "line2": "и надолго"
+  }
+ ]
+}
