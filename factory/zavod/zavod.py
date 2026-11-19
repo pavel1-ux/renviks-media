@@ -11,7 +11,7 @@ from core import *
 from scenes import LIBRARY
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))   # корень репозитория
-BRAND = dict(name='РЕНВИКС', tagline='ремонт квартир под ключ', contact='@renviks_moscow', logo=None)
+BRAND = dict(name='РЕНВИКС', tagline='ремонт квартир под ключ', contact='@renviks_moscow', logo='factory/brand/logo.jpg')
 TR = 0.4   # длительность перехода zoom-blur
 
 def resolve(spec):

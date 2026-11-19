@@ -172,3 +172,19 @@ def sfx(name):
     if name == 'room':
         n = int(12 * SR); return 0.6 * np.convolve(_rng(3).standard_normal(n), np.ones(400) / 400, 'same')
     raise KeyError(name)
+
+_lg = {}
+def logo_layer(path, width):
+    """логотип с мягко растворёнными краями (фон логотипа сливается с фоном кадра)"""
+    k = (path, width)
+    if k not in _lg:
+        im = Image.open(path).convert('RGB'); im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
+        w, h = im.size; f = 0.14
+        xs = np.minimum(np.arange(w) / (w * f), (w - 1 - np.arange(w)) / (w * f)).clip(0, 1)
+        ys = np.minimum(np.arange(h) / (h * f), (h - 1 - np.arange(h)) / (h * f)).clip(0, 1)
+        m = (np.outer(ys, xs) ** 1.5 * 255).astype(np.uint8)
+        im = im.convert('RGBA'); im.putalpha(Image.fromarray(m)); _lg[k] = im
+    return _lg[k]
+
+def logo_bg(path):
+    a = np.asarray(Image.open(path).convert('RGB'), dtype=np.float32); return tuple(int(v) for v in a[:40, :40].reshape(-1, 3).mean(0))

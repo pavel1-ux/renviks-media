@@ -191,6 +191,12 @@ class EndBrand(Scene):
         self.l1, self.l2 = s.get('line1', ''), s.get('line2', ''); self.contact = s.get('contact', 'Пишите: ' + b['contact'])
         self.save = s.get('save', 'Сохраните, чтобы не забыть'); self.ls = min(fit_size(self.l1, 64, 'ExtraBold', 960), fit_size(self.l2, 64, 'ExtraBold', 960))
         self.cs = fit_size(self.contact, 56, 'ExtraBold', 700); self.ss = fit_size(self.save, 46, 'Medium', 780)
+        self.logo = b.get('logo'); self.ly1, self.ly2 = (420, 510) if self.logo else (560, 650)
+        if self.logo:
+            for txt, y, sz, cx in [(self.l1, 420, self.ls, W / 2), (self.l2, 510, self.ls, W / 2), (self.save, 1360, self.ss, LOW_CX)]:
+                if txt: tw = tlen(txt, font(sz, 'ExtraBold' if y < 600 else 'Medium')); self.add_text((cx - tw / 2, y, cx + tw / 2, y + sz * 1.0), sz, WHITE, False, txt)
+            tw = tlen(self.contact, font(self.cs, 'ExtraBold')) + 72; self.add_text((LOW_CX - tw / 2, 1190, LOW_CX + tw / 2, 1290), self.cs, WHITE, True, self.contact)
+            return
         for txt, y, sz, cx in [(self.l1, 560, self.ls, W / 2), (self.l2, 650, self.ls, W / 2), (b['name'], 880, 150, W / 2), (b['tagline'], 1040, 48, W / 2),
                                (self.contact, 1190, self.cs + 36, LOW_CX), (self.save, 1360, self.ss, LOW_CX)]:
             if txt:
@@ -198,18 +204,20 @@ class EndBrand(Scene):
                 tw = tlen(txt, font(sz, wt)) if txt != self.contact else tlen(txt, font(self.cs, 'ExtraBold')) + 72
                 self.add_text((cx - tw / 2, y, cx + tw / 2, y + min(sz, 150) * 1.0), sz, WHITE, txt == self.contact, txt)
     def bg(self, t):
-        o = Image.new('RGB', (W, H), NAVY); d = ImageDraw.Draw(o)
-        for k in range(-4, 14): x = k * 160 + (t * 120) % 160; d.line([x, 0, x - 900, H], fill=(20, 34, 56), width=40)
+        base = logo_bg(self.logo) if getattr(self, 'logo', None) else NAVY
+        o = Image.new('RGB', (W, H), base); d = ImageDraw.Draw(o); ln = tuple(min(255, v + 9) for v in base)
+        for k in range(-4, 14): x = k * 160 + (t * 120) % 160; d.line([x, 0, x - 900, H], fill=ln, width=40)
         return o
     def frame(self, t):
         out = self.bg(t).convert('RGBA'); d = ImageDraw.Draw(out); b = self.ctx['brand']; a = back(t / 0.3)
-        for txt, y in [(self.l1, 560), (self.l2, 650)]:
+        for txt, y in [(self.l1, self.ly1), (self.l2, self.ly2)]:
             if txt: paste(out, text_layer(txt, self.ls, WHITE, 'ExtraBold'), W / 2, y + self.ls * 0.6, scale=0.7 + 0.3 * a, alpha=clamp(t / 0.2))
         bb = back((t - 0.35) / 0.3)
         if bb > 0:
-            if b.get('logo'): paste(out, Image.open(b['logo']).convert('RGBA'), W / 2, 940, scale=bb * 520 / Image.open(b['logo']).width)
-            else: paste(out, text_layer(b['name'], 150, GOLD), W / 2, 950, scale=0.5 + 0.5 * bb)
-            paste(out, text_layer(b['tagline'], 48, WHITE, 'SemiBold'), W / 2, 1068, alpha=clamp((t - 0.4) / 0.2))
+            if self.logo: paste(out, logo_layer(self.logo, 640), W / 2, 870, scale=0.6 + 0.4 * bb, alpha=clamp((t - 0.35) / 0.2))
+            else:
+                paste(out, text_layer(b['name'], 150, GOLD), W / 2, 950, scale=0.5 + 0.5 * bb)
+                paste(out, text_layer(b['tagline'], 48, WHITE, 'SemiBold'), W / 2, 1068, alpha=clamp((t - 0.4) / 0.2))
         c = back((t - 0.7) / 0.3)
         if c > 0:
             f = font(self.cs, 'ExtraBold'); tw = tlen(self.contact, f)
@@ -223,13 +231,19 @@ class EndLogo(Scene):
     dur = 1.3
     def __init__(self, s, ctx):
         super().__init__(s, ctx); b = ctx['brand']
+        if b.get('logo'):
+            tw = tlen(b['contact'], font(46, 'SemiBold')); self.add_text((W / 2 - tw / 2, 1380, W / 2 + tw / 2, 1436), 46, WHITE, False, b['contact']); return
         for txt, y, sz in [('Р Е Н В И К С', 860, 78), (b['tagline'] + ' · Москва', 980, 44), (b['contact'], 1060, 46)]:
             tw = tlen(txt, font(sz, 'SemiBold')); self.add_text((W / 2 - tw / 2, y, W / 2 + tw / 2, y + sz * 1.2), sz, WHITE, False, txt)
     def card(self, a):
         b = self.ctx['brand']; out = Image.new('RGB', (W, H), BLACK); d = ImageDraw.Draw(out)
         c = tuple(int(235 * a) for _ in range(3)); g = tuple(int(v * a) for v in GOLD); cx, cy = W // 2, 740
         if b.get('logo'):
-            lg = Image.open(b['logo']).convert('RGBA'); o = out.convert('RGBA'); paste(o, lg, cx, cy, scale=420 / lg.width, alpha=a); return o.convert('RGB')
+            bgc = logo_bg(b['logo']); o = Image.new('RGBA', (W, H), tuple(int(v * min(1, a * 1.5)) for v in bgc) + (255,))
+            paste(o, logo_layer(b['logo'], 1000), W / 2, 860, scale=0.92 + 0.08 * a, alpha=a)
+            f = font(46, 'SemiBold'); dd = ImageDraw.Draw(o); t = b['contact']
+            dd.text((W / 2 - dd.textlength(t, font=f) / 2, 1380), t, font=f, fill=tuple(int(235 * a) for _ in range(3)))
+            return o.convert('RGB')
         d.line([cx - 95, cy + 70, cx - 95, cy - 20, cx, cy - 105, cx + 95, cy - 20, cx + 95, cy + 70], fill=c, width=5, joint='curve')
         d.line([cx - 25, cy + 70, cx - 25, cy + 5, cx + 25, cy + 5, cx + 25, cy + 70], fill=g, width=5); d.line([cx + 140, cy - 150, cx + 40, cy - 60], fill=c, width=3)
         f = font(78, 'SemiBold'); txt = 'Р Е Н В И К С'; tw = d.textlength(txt, font=f); d.text((cx - tw / 2, cy + 120), txt, font=f, fill=c)
