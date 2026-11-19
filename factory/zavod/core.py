@@ -37,14 +37,19 @@ def back(t):
     return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2
 
 _ph = {}
-def photo(path):
-    """фото под 1080x1920 (cover), с кэшем"""
-    if path not in _ph:
-        im = Image.open(path).convert('RGB'); s = max(W / im.width, H / im.height)
+def photo(path, exposure=1.0, contrast=1.0):
+    """фото под 1080x1920 (cover), с кэшем; exposure/contrast — подтянуть тёмные кадры с объекта"""
+    key = (path, exposure, contrast)
+    if key not in _ph:
+        from PIL import ImageEnhance, ImageOps
+        im = ImageOps.exif_transpose(Image.open(path)).convert('RGB')
+        if exposure != 1.0: im = ImageEnhance.Brightness(im).enhance(exposure)
+        if contrast != 1.0: im = ImageEnhance.Contrast(im).enhance(contrast)
+        s = max(W / im.width, H / im.height)
         im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
         x0 = (im.width - W) // 2; y0 = (im.height - H) // 2
-        _ph[path] = im.crop((x0, y0, x0 + W, y0 + H))
-    return _ph[path]
+        _ph[key] = im.crop((x0, y0, x0 + W, y0 + H))
+    return _ph[key]
 
 def cam(img, z, fx=W / 2, fy=H / 2):
     """камера: увеличение z с фокусом (fx,fy). Возвращает (кадр, box) — box нужен для пересчёта точек."""

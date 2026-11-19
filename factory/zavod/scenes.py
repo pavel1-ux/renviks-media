@@ -1,7 +1,7 @@
 """Библиотека сцен. Каждая сцена: dur, frame(t)->RGBA, bg(t)->RGB без надписей, events()->звуки,
 texts()->список текстовых блоков в итоговом положении (для автопроверки).
 Добавить сцену: класс + запись в LIBRARY."""
-import math
+import math, os
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 from core import *
@@ -64,7 +64,7 @@ class PhotoScene(Scene):
     dur = 1.5
     def __init__(self, s, ctx):
         super().__init__(s, ctx)
-        self.img = photo(s['img']); self.kind = s.get('kind'); self.fx, self.fy = s.get('focus', [W / 2, H / 2])
+        self.img = photo(s['img'], s.get('exposure', 1.0), s.get('contrast', 1.0)) if s.get('img') else None; self.kind = s.get('kind'); self.fx, self.fy = s.get('focus', [W / 2, H / 2])
         self.zoom = s.get('zoom', 'punch' if self.kind == 'net' else ('drift' if self.kind == 'da' else 'push'))
         self.label = None
         if s.get('text'):
@@ -242,5 +242,64 @@ class EndLogo(Scene):
         p = t / self.dur; return self.card(ease((p - 0.15) / 0.45)).convert('RGBA')
     def events(self): return [(0.3, 'shimmer', 1)]
 
+# ---------- клип: живое видео с объекта ----------
+import subprocess, json as _json
+def probe(path):
+    out = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:stream_side_data=rotation:format=duration',
+                          '-of', 'json', path], capture_output=True, text=True).stdout
+    j = _json.loads(out); st = j['streams'][0]; w, h = st['width'], st['height']
+    rot = 0
+    for sd in st.get('side_data_list', []) or []:
+        if 'rotation' in sd: rot = abs(int(sd['rotation']))
+    if rot in (90, 270): w, h = h, w
+    return w, h, float(j['format']['duration'])
+
+class Clip(PhotoScene):
+    """src, start, dur, speed (1 = норм., 2 = ускорение), mode cover|fit (fit: горизонтальное видео на размытом фоне),
+    focus_x (0..1, куда сдвинуть кадр при cover), + всё от photo: kind, text, ring, focus, dim, counter. zoom по умолчанию 'none'."""
+    dur = 2.5
+    def __init__(self, s, ctx):
+        s = dict(s); s.setdefault('zoom', 'none'); s['img'] = None
+        Scene.__init__(self, s, ctx)
+        self.src = s['src'] if os.path.isabs(s['src']) else os.path.join(ctx['root'], s['src'])
+        self.vw, self.vh, self.vdur = probe(self.src)
+        self.start = s.get('start', 0.0); self.speed = s.get('speed', 1.0)
+        self.mode = s.get('mode', 'cover' if self.vh >= self.vw else 'fit')
+        self.kind = s.get('kind'); self.fx, self.fy = s.get('focus', [W / 2, H / 2]); self.zoom = s['zoom']
+        self.label = None; self._texts = []
+        if s.get('text'):
+            badge = s.get('badge', {'net': 'НЕТ', 'da': 'ДА'}.get(self.kind)); col = {'net': RED, 'da': GREEN}.get(self.kind, GOLD)
+            self.label = pill(badge, col, s['text']); self.ly = max(s.get('label_y', 330), 272 + self.label.height / 2)
+            self.add_text((SAFE[0], self.ly - self.label.height / 2, SAFE[0] + self.label.width, self.ly + self.label.height / 2), 60, WHITE, True, s['text'])
+        self.counter = s.get('counter')
+        if self.counter: self.add_text((SAFE[0], 190, SAFE[0] + 120, 250), 40, WHITE, True, self.counter)
+        self._proc = None; self._next = None; self._last = None
+    def _vf(self):
+        sp = f'setpts=PTS/{self.speed},' if self.speed != 1 else ''
+        if self.mode == 'cover':
+            fx = self.s.get('focus_x', 0.5)
+            return f"{sp}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}:(iw-{W})*{fx}:(ih-{H})/2,fps={FPS},format=rgb24"
+        return (f"{sp}split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=28:2,eq=brightness=-0.12[bg];"
+                f"[b]scale={W}:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2-{self.s.get('fit_up', 120)},fps={FPS},format=rgb24")
+    def _open(self, t):
+        if self._proc: self._proc.kill()
+        ss = self.start + t * self.speed
+        self._proc = subprocess.Popen(['ffmpeg', '-v', 'error', '-ss', f'{ss:.3f}', '-i', self.src, '-t', f'{(self.dur - t) * self.speed + 0.5:.3f}',
+                                       '-filter_complex', self._vf(), '-an', '-f', 'rawvideo', '-'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        self._next = round(t * FPS)
+    def video(self, t):
+        fi = round(t * FPS)
+        if self._proc is None or fi != self._next:
+            if self._last is not None and fi == self._next - 1: return self._last
+            self._open(t)
+        raw = self._proc.stdout.read(W * H * 3); self._next += 1
+        if len(raw) < W * H * 3: return self._last or Image.new('RGB', (W, H), DARK)
+        self._last = Image.frombytes('RGB', (W, H), raw); return self._last
+    def bg(self, t): return cam(self.video(t), self.z(t), self.fx, self.fy)[0]
+    def frame(self, t):
+        self.img = self.video(t); return PhotoScene.frame(self, t)
+    def z(self, t):
+        return 1.0 if self.zoom == 'none' else PhotoScene.z(self, t)
+
 LIBRARY = {'hook': Hook, 'photo': PhotoScene, 'stage': Stage, 'checklist': Checklist,
-           'before_after': BeforeAfter, 'end_brand': EndBrand, 'end_logo': EndLogo}
+           'before_after': BeforeAfter, 'clip': Clip, 'end_brand': EndBrand, 'end_logo': EndLogo}

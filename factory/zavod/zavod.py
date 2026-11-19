@@ -25,7 +25,7 @@ class Reel:
         brand = dict(BRAND, **self.cfg.get('brand', {}))
         if brand.get('logo') and not os.path.isabs(brand['logo']): brand['logo'] = os.path.join(ROOT, brand['logo'])
         if brand.get('logo') and not os.path.exists(brand['logo']): brand['logo'] = None
-        ctx = dict(brand=brand)
+        ctx = dict(brand=brand, root=ROOT)
         self.scenes, self.starts, t = [], [], 0.0
         for i, s in enumerate(self.cfg['scenes']):
             sc = LIBRARY[s['type']](resolve(dict(s)), ctx)
