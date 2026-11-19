@@ -1,0 +1,93 @@
+{
+ "hook_top": [
+  "УКЛАДКА",
+  "ПЛИТКИ"
+ ],
+ "hook_sub": "Как отличить хорошую работу",
+ "end_line1": "Принимайте плитку",
+ "end_line2": "по этим 4 пунктам",
+ "end_contact": "Пишите: @renviks_moscow",
+ "end_save": "Сохраните, чтобы не забыть",
+ "pairs": [
+  {
+   "net": {
+    "img": "media/in/netda-vanna-plitka/t1_net.jpg",
+    "focus": [
+     562,
+     990
+    ],
+    "text": "Пластиковый уголок",
+    "ring": 200
+   },
+   "da": {
+    "img": "media/in/netda-vanna-plitka/t1_da.jpg",
+    "focus": [
+     540,
+     900
+    ],
+    "text": "Запил под 45°",
+    "ring": 220
+   }
+  },
+  {
+   "net": {
+    "img": "media/in/netda-vanna-plitka/t2_net.jpg",
+    "focus": [
+     590,
+     945
+    ],
+    "text": "Узкая подрезка у стены",
+    "ring": 200
+   },
+   "da": {
+    "img": "media/in/netda-vanna-plitka/t2_da.jpg",
+    "focus": [
+     540,
+     900
+    ],
+    "text": "Продуманная раскладка",
+    "ring": 280
+   }
+  },
+  {
+   "net": {
+    "img": "media/in/netda-vanna-plitka/t3_net.jpg",
+    "focus": [
+     562,
+     990
+    ],
+    "text": "Кривые швы и перепады",
+    "ring": 230
+   },
+   "da": {
+    "img": "media/in/netda-vanna-plitka/t3_da.jpg",
+    "focus": [
+     450,
+     900
+    ],
+    "text": "Ровные швы, плоская стена",
+    "ring": 230
+   }
+  },
+  {
+   "net": {
+    "img": "media/in/netda-vanna-plitka/t4_net.jpg",
+    "focus": [
+     495,
+     945
+    ],
+    "text": "Розетка на стыке плиток",
+    "ring": 190
+   },
+   "da": {
+    "img": "media/in/netda-vanna-plitka/t4_da.jpg",
+    "focus": [
+     517,
+     967
+    ],
+    "text": "Розетка по центру плитки",
+    "ring": 170
+   }
+  }
+ ]
+}

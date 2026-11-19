@@ -105,7 +105,9 @@ def paste(base, layer, cx, cy, scale=1.0, alpha=1.0, rot=0):
         a = l.split()[3].point(lambda v: int(v * alpha)); l = l.copy(); l.putalpha(a)
     base.alpha_composite(l, (int(cx - l.width / 2), int(cy - l.height / 2)))
 
-def text_center(base, text, y, size, col, wt='Black', alpha=1.0, scale=1.0, x=CX):
+def text_center(base, text, y, size, col, wt='Black', alpha=1.0, scale=1.0, x=CX, maxw=980):
+    d0 = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+    while size > 20 and d0.textlength(text, font=font(size, wt)) > maxw: size -= 2
     f = font(int(size * scale), wt)
     d = ImageDraw.Draw(Image.new('RGB', (1, 1))); tw = d.textlength(text, font=f)
     layer = Image.new('RGBA', (int(tw) + 40, int(size * scale * 1.4)), (0, 0, 0, 0))
