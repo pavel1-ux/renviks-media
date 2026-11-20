@@ -1,0 +1,22 @@
+{
+ "id": "vanna-v3",
+ "title": "Ванная: найдите 4 ошибки (v3, сценарий по битам)",
+ "voice": {"file": "media/in/voice/vanna3_vo.mp3", "tempo": 1.1, "sfx_gain": 0.4},
+ "captions": true,
+ "progress": 4,
+ "beats": "HOOK вопрос-вызов → 4 × (лупа на ошибке → как надо) → ПОВОРОТ «самая дорогая» → вопрос в комментарии",
+ "scenes": [
+  {"type": "quiz", "img": "media/in/netda-vanna-plitka/b2_net.jpg", "focus": [540, 1100], "title": "ПРОТЕЧЁТ|ЧЕРЕЗ ГОД", "sub": "Найдите 4 ошибки", "count": 3},
+  {"type": "lens", "from": "Первая", "step": 1, "img": "media/in/netda-vanna-plitka/b1_net.jpg", "focus": [640, 990], "kind": "net", "text": "Розетка у самой ванны"},
+  {"type": "split", "from": "Нужна", "step": 1, "net": "media/in/netda-vanna-plitka/b1_net.jpg", "da": "media/in/netda-vanna-plitka/b1_da.jpg", "net_focus": [640, 990], "da_focus": [975, 1080], "net_text": "Открытая, у воды", "da_text": "С крышкой, вдали"},
+  {"type": "lens", "from": "Вторая", "step": 2, "img": "media/in/netda-vanna-plitka/b2_net.jpg", "focus": [540, 1350], "kind": "net", "text": "Пол без уклона"},
+  {"type": "split", "from": "Уклон к трапу", "step": 2, "net": "media/in/netda-vanna-plitka/b2_net.jpg", "da": "media/in/netda-vanna-plitka/b2_da.jpg", "net_focus": [540, 1350], "da_focus": [832, 1485], "net_text": "Вода стоит", "da_text": "Уклон к трапу"},
+  {"type": "lens", "from": "Третья", "step": 3, "img": "media/in/netda-vanna-plitka/b3_net.jpg", "focus": [562, 900], "kind": "net", "text": "Дешёвая затирка"},
+  {"type": "split", "from": "Эпоксидная", "step": 3, "net": "media/in/netda-vanna-plitka/b3_net.jpg", "da": "media/in/netda-vanna-plitka/b3_da.jpg", "net_focus": [562, 900], "da_focus": [540, 1125], "net_text": "Швы чернеют", "da_text": "Эпоксидная"},
+  {"type": "bignum", "from": "И самая дорогая", "step": 4, "img": "media/in/netda-vanna-plitka/b4_net.jpg", "value": "№4", "title": "САМАЯ ДОРОГАЯ", "captions": false},
+  {"type": "lens", "from": "Нет доступа", "step": 4, "img": "media/in/netda-vanna-plitka/b4_net.jpg", "focus": [360, 1035], "kind": "net", "text": "Нет доступа к трубам"},
+  {"type": "split", "from": "Нужен скрытый", "step": 4, "net": "media/in/netda-vanna-plitka/b4_net.jpg", "da": "media/in/netda-vanna-plitka/b4_da.jpg", "net_focus": [360, 1035], "da_focus": [810, 1035], "net_text": "Ломают плитку", "da_text": "Скрытый люк"},
+  {"type": "end_brand", "from": "Сколько ошибок", "to_end": true, "tail": 1.6, "captions": false, "line1": "Сколько ошибок нашли?", "line2": "Пишите в комментариях"}
+ ],
+ "caption": "Эта ванная протечёт через год. Нашли все 4 ошибки? 👇\n\n1. Обычная розетка у самой ванны.\n2. Пол без уклона — вода стоит, а не уходит в трап.\n3. Дешёвая затирка — через год швы чёрные.\n4. Нет доступа к трубам — при протечке ломают плитку.\n\nКак надо: влагозащищённые розетки подальше от воды, уклон к трапу ещё в стяжке, эпоксидная затирка, скрытый люк под плитку.\n\nСохраните, чтобы проверить свою ванную.\nДелаем ванные под ключ в Москве. Пишите: @renviks_moscow\n\n#ремонтванной #ванная #ремонтквартир #ремонтмосква #санузелподключ"
+}

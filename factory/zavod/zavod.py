@@ -13,6 +13,9 @@ from scenes import LIBRARY
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))   # корень репозитория
 BRAND = dict(name='РЕНВИКС', tagline='ремонт квартир под ключ', contact='@renviks_moscow', logo='factory/brand/logo.jpg')
 TR = 0.4   # длительность перехода zoom-blur
+CAP_Y, CAP_X, CAP_W, CAP_SIZE = 1190, LOW_CX, 820, 78   # субтитры по словам: ниже середины, левее кнопок Instagram
+import re
+def norm(w): return re.sub(r'[^\wё]', '', w.lower().replace('ё', 'е'))
 
 def resolve(spec):
     for k in ('img', 'before', 'after'):
@@ -26,12 +29,94 @@ class Reel:
         if brand.get('logo') and not os.path.isabs(brand['logo']): brand['logo'] = os.path.join(ROOT, brand['logo'])
         if brand.get('logo') and not os.path.exists(brand['logo']): brand['logo'] = None
         ctx = dict(brand=brand, root=ROOT)
+        self.words = self.load_words()
+        specs = [resolve(dict(s)) for s in self.cfg['scenes']]
+        self.timeline(specs)
         self.scenes, self.starts, t = [], [], 0.0
-        for i, s in enumerate(self.cfg['scenes']):
-            sc = LIBRARY[s['type']](resolve(dict(s)), ctx)
-            sc.enter = s.get('enter', 'flash' if s['type'] == 'photo' else 'cut'); sc.idx = i
+        for i, s in enumerate(specs):
+            sc = LIBRARY[s['type']](s, ctx)
+            sc.enter = s.get('enter', 'flash' if s['type'] in ('photo', 'lens') else 'cut'); sc.idx = i
             self.scenes.append(sc); self.starts.append(t); t += sc.dur
         self.total = t
+        self.chunks = self.make_chunks() if self.cfg.get('captions') and self.words else []
+
+    # ---------- голос → слова → тайминг сцен ----------
+    def load_words(self):
+        vo = self.cfg.get('voice')
+        if not vo: return []
+        wp = vo.get('words') or os.path.splitext(vo['file'])[0] + '.words.json'
+        wp = wp if os.path.isabs(wp) else os.path.join(ROOT, wp)
+        if not os.path.exists(wp): return []
+        k = 1 / vo.get('tempo', 1.0); off = vo.get('offset', 0.0)
+        return [dict(w=w['w'], start=w['start'] * k + off, end=w['end'] * k + off) for w in json.load(open(wp))['words']]
+
+    def find(self, phrase, i0):
+        key = [norm(x) for x in phrase.split()]
+        for i in range(i0, len(self.words) - len(key) + 1):
+            if [norm(self.words[i + j]['w']) for j in range(len(key))] == key: return i
+        raise SystemExit(f'фраза «{phrase}» не найдена в голосе после слова {i0}')
+
+    def timeline(self, specs):
+        """сцена с 'from': «фраза» начинается чуть раньше этой фразы в голосе; длительности считаются сами"""
+        if not self.words or not any('from' in s for s in specs): return
+        starts, i0 = [], 0
+        for k, s in enumerate(specs):
+            if k == 0: starts.append(0.0); continue
+            if 'from' in s:
+                i = self.find(s['from'], i0); i0 = i + 1; starts.append(max(0.0, self.words[i]['start'] - s.get('lead', 0.12)))
+            else: starts.append(None)
+        for k, s in enumerate(specs):
+            if starts[k] is None: continue
+            j = next((j for j in range(k + 1, len(specs)) if starts[j] is not None), None)
+            if j is not None:
+                s['dur'] = round(starts[j] - starts[k] - sum(specs[m].get('dur', 1.5) for m in range(k + 1, j)), 3)
+            elif s.get('to_end'):
+                s['dur'] = round(self.words[-1]['end'] - starts[k] + s.get('tail', 1.2), 3)
+
+    def make_chunks(self):
+        out, cur = [], []
+        for w in self.words:
+            cur.append(w); txt = ' '.join(x['w'] for x in cur)
+            if w['w'][-1:] in '.?!,:' or len(cur) >= 3 or len(txt) > 16: out.append(cur); cur = []
+        if cur: out.append(cur)
+        res = []
+        for k, c in enumerate(out):
+            st = c[0]['start'] - 0.05; en = out[k + 1][0]['start'] - 0.05 if k + 1 < len(out) else c[-1]['end'] + 0.4
+            if en - c[-1]['end'] > 0.6: en = c[-1]['end'] + 0.35
+            res.append(dict(words=c, start=st, end=en))
+        return res
+
+    def caption(self, out, t):
+        sc = self.scenes[self.at(t)[0]]
+        if sc.s.get('captions') is False: return out
+        ch = next((c for c in self.chunks if c['start'] <= t < c['end']), None)
+        if not ch: return out
+        pop = clamp((t - ch['start']) / 0.12)
+        size = int(CAP_SIZE * (0.86 + 0.14 * back(pop))); f = font(size, 'Black'); sp = tlen(' ', f)
+        ws = [w['w'].upper() for w in ch['words']]; widths = [tlen(w, f) for w in ws]
+        while sum(widths) + sp * (len(ws) - 1) > CAP_W and size > 54:
+            size -= 4; f = font(size, 'Black'); sp = tlen(' ', f); widths = [tlen(w, f) for w in ws]
+        x = CAP_X - (sum(widths) + sp * (len(ws) - 1)) / 2
+        d = ImageDraw.Draw(out)
+        for w, wd, wo in zip(ws, widths, ch['words']):
+            active = wo['start'] - 0.04 <= t < wo['end'] + 0.04 or (t >= wo['end'] and w is ws[-1])
+            spoken = t >= wo['start'] - 0.04
+            col = GOLD if active else (WHITE if spoken else (205, 205, 205))
+            d.text((x, CAP_Y), w, font=f, fill=col + (255,), anchor='lm', stroke_width=10, stroke_fill=(0, 0, 0, 255))
+            x += wd + sp
+        return out
+
+    def progress(self, out, t):
+        n = self.cfg.get('progress')
+        if not n: return out
+        i, lt = self.at(t); step = self.scenes[i].s.get('step')
+        if step is None: return out
+        d = ImageDraw.Draw(out); x0, x1, y = 60, 1020, 212; gap = 14; w = (x1 - x0 - gap * (n - 1)) / n
+        for k in range(n):
+            xa = x0 + k * (w + gap); d.rounded_rectangle([xa, y, xa + w, y + 14], radius=7, fill=(255, 255, 255, 90))
+            fill = 1 if k < step - 1 else (ease(lt / 0.5) if k == step - 1 else 0)
+            if fill > 0: d.rounded_rectangle([xa, y, xa + w * fill, y + 14], radius=7, fill=GOLD + (255,))
+        return out
 
     def at(self, t):
         for i in range(len(self.scenes) - 1, -1, -1):
@@ -48,6 +133,10 @@ class Reel:
             p = (lt - TR / 2) / (TR / 2); out = zoom_blur(out, 1.22 - 0.2 * ease_out(p), 0.22 * (1 - ease_out(p)))
         if sc.enter == 'flash' and lt < 0.12:
             out = Image.blend(out, Image.new('RGB', (W, H), WHITE), 0.6 * (1 - lt / 0.12))
+        if self.chunks or self.cfg.get('progress'):
+            o = out.convert('RGBA'); self.progress(o, t)
+            if self.chunks: self.caption(o, t)
+            out = o.convert('RGB')
         return out
 
     # ---------- автопроверка ----------
@@ -70,6 +159,14 @@ class Reel:
                     A, B = boxes[a]['box'], boxes[b]['box']
                     if A[0] < B[2] - 4 and B[0] < A[2] - 4 and A[1] < B[3] - 4 and B[1] < A[3] - 4:
                         problems.append(f"{name}: наложение «{boxes[a]['what'][:20]}» и «{boxes[b]['what'][:20]}»")
+        for c in self.chunks:
+            i = self.at((c['start'] + c['end']) / 2)[0]; sc = self.scenes[i]
+            if sc.s.get('captions') is False: continue
+            for tb in sc.texts():
+                x0, y0, x1, y1 = tb['box']
+                if y0 < CAP_Y + 50 and y1 > CAP_Y - 50:
+                    problems.append(f"субтитр «{' '.join(w['w'] for w in c['words'])}» наезжает на «{tb['what'][:20]}» (сцена {i + 1})"); break
+        if self.words and self.words[-1]['end'] > self.total: problems.append(f"голос ({self.words[-1]['end']:.1f} с) длиннее видео ({self.total:.1f} с)")
         if self.total > 60: problems.append(f'длина {self.total:.1f} с — больше 60 с')
         return problems
 

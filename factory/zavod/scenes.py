@@ -317,3 +317,142 @@ class Clip(PhotoScene):
 
 LIBRARY = {'hook': Hook, 'photo': PhotoScene, 'stage': Stage, 'checklist': Checklist,
            'before_after': BeforeAfter, 'clip': Clip, 'end_brand': EndBrand, 'end_logo': EndLogo}
+
+# ================= v3: сцены с движением =================
+
+# ---------- квиз-крючок: фото + крупный вопрос + таймер обратного отсчёта ----------
+class Quiz(PhotoScene):
+    """img, title (крупно, 1-2 строки через |), sub, count (секунд отсчёта, 0 = без таймера). Камера медленно наезжает."""
+    dur = 3.0
+    def __init__(self, s, ctx):
+        s = dict(s); s.setdefault('zoom', 'push'); s.setdefault('z1', 1.12); s['text'] = None; s['kind'] = None
+        super().__init__(s, ctx)
+        self.lines = s['title'].split('|'); self.sub = s.get('sub', ''); self.count = s.get('count', 3)
+        self.ts = min(fit_size(l, s.get('size', 112), 'Black', 940) for l in self.lines)
+        y = 300
+        for l in self.lines:
+            tw = tlen(l, font(self.ts)); self.add_text((W / 2 - tw / 2, y, W / 2 + tw / 2, y + self.ts * 1.1), self.ts, WHITE, True, l); y += self.ts * 1.18
+        self.y_sub = y + 20; self.ss = fit_size(self.sub, 56, 'ExtraBold', 900) if self.sub else 0
+        if self.sub:
+            tw = tlen(self.sub, font(self.ss, 'ExtraBold')); self.add_text((W / 2 - tw / 2 - 30, self.y_sub, W / 2 + tw / 2 + 30, self.y_sub + self.ss * 1.5), self.ss, DARK, True, self.sub)
+    def frame(self, t):
+        out = PhotoScene.frame(self, t)
+        g = Image.new('RGBA', (W, H), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+        for k in range(40): gd.rectangle([0, k * 22, W, k * 22 + 22], fill=(0, 0, 0, int(150 * (1 - k / 40))))
+        out.alpha_composite(g); y = 300
+        for k, l in enumerate(self.lines):
+            a = back((t - 0.12 * k) / 0.28)
+            if a > 0: paste(out, text_layer(l, self.ts, WHITE), W / 2, y + self.ts * 0.6, scale=0.4 + 0.6 * a)
+            y += self.ts * 1.18
+        if self.sub:
+            a = back((t - 0.45) / 0.25)
+            if a > 0:
+                f = font(self.ss, 'ExtraBold'); tw = tlen(self.sub, f)
+                lay = Image.new('RGBA', (int(tw + 60), int(self.ss * 1.5)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+                ld.rounded_rectangle([0, 0, lay.width - 1, lay.height - 1], radius=26, fill=GOLD + (255,)); ld.text((lay.width / 2, lay.height / 2), self.sub, font=f, fill=DARK, anchor='mm')
+                paste(out, lay, W / 2, self.y_sub + lay.height / 2, scale=a, rot=-2)
+        if self.count:
+            st = 0.7; left = self.count - (t - st)
+            if t > st and left > 0:
+                cx, cy, r = W / 2, 1000, 105; d = ImageDraw.Draw(out); frac = left - math.floor(left)
+                d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=DARK + (215,))
+                d.arc([cx - r + 8, cy - r + 8, cx + r - 8, cy + r - 8], -90, -90 + 360 * frac, fill=GOLD + (255,), width=14)
+                n = str(math.ceil(left)); p = back(1 - frac) if frac > 0.75 else 1
+                paste(out, text_layer(n, 120, WHITE, shadow=False), cx, cy + 8, scale=0.6 + 0.4 * min(1, (1 - frac) / 0.25 + 0.0) if frac > 0.75 else 1)
+        return out
+    def events(self):
+        e = [(0, 'impact', 1), (0.05, 'pop', 1), (0.45, 'pop', 0.8)]
+        e += [(0.7 + k, 'tick', 1.4) for k in range(self.count)]
+        return e
+
+# ---------- лупа: увеличенный круг на месте ошибки ----------
+class Lens(PhotoScene):
+    """img, kind net|da, text, focus [x,y], lens_r (радиус лупы), lens_z (увеличение), lens_at [x,y] — где висит лупа (по умолчанию над точкой)."""
+    dur = 2.2
+    def __init__(self, s, ctx):
+        s = dict(s); s.setdefault('zoom', 'push'); s.setdefault('z1', 1.04); s.setdefault('ring', 0)
+        super().__init__(s, ctx)
+        self.lr = s.get('lens_r', 230); self.lz = s.get('lens_z', 2.2)
+        fx, fy = self.fx, self.fy; self.lat = s.get('lens_at', [min(max(fx, self.lr + 70), W - self.lr - 70), min(max(fy - 150, 640), 800)])
+    def frame(self, t):
+        base, box = cam(self.img, self.z(t), self.fx, self.fy); out = base.convert('RGBA')
+        dim = 110 * ease((t - 0.15) / 0.3); out.alpha_composite(Image.new('RGBA', (W, H), (0, 0, 0, int(dim))))
+        p = back((t - 0.15) / 0.35)
+        if p > 0:
+            r = self.lr; z = self.lz * (0.85 + 0.15 * ease((t - 0.15) / 0.8))
+            src = self.img; cw = 2 * r / z
+            crop = src.resize((2 * r, 2 * r), Image.BICUBIC, box=(self.fx - cw / 2, self.fy - cw / 2, self.fx + cw / 2, self.fy + cw / 2)).convert('RGBA')
+            m = Image.new('L', (2 * r, 2 * r), 0); ImageDraw.Draw(m).ellipse([0, 0, 2 * r - 1, 2 * r - 1], fill=255); crop.putalpha(m)
+            lens = Image.new('RGBA', (2 * r + 40, 2 * r + 40), (0, 0, 0, 0)); ld = ImageDraw.Draw(lens)
+            ld.ellipse([8, 14, 2 * r + 32, 2 * r + 38], fill=(0, 0, 0, 120)); lens.alpha_composite(crop, (20, 20))
+            col = RED if self.kind == 'net' else GREEN; ld.ellipse([14, 14, 2 * r + 26, 2 * r + 26], outline=col + (255,), width=14)
+            # линия от точки к лупе
+            px, py = map_pt(self.fx, self.fy, box); lx, ly = self.lat
+            d = ImageDraw.Draw(out); d.line([px, py, lx, ly], fill=col + (int(255 * min(1, p)),), width=8); d.ellipse([px - 14, py - 14, px + 14, py + 14], fill=col + (255,))
+            paste(out, lens, lx, ly, scale=min(1.05, p))
+            m2 = back((t - 0.5) / 0.22)
+            if m2 > 0: paste(out, mark(self.kind, 70), lx + r * 0.72, ly - r * 0.72, scale=m2, rot=8 if self.kind == 'net' else 0)
+        if self.label is not None:
+            s = back(t / 0.22)
+            if s > 0: paste(out, self.label, SAFE[0] + self.label.width * s / 2, self.ly, scale=s)
+        return out
+    def events(self):
+        return [(0.05, 'pop', 1), (0.15, 'whoosh', 0.8), (0.5, 'impact' if self.kind == 'net' else 'ding', 0.8), (0.52, 'buzz' if self.kind == 'net' else 'pop', 1)]
+
+# ---------- сплит: НЕТ сверху / ДА снизу ----------
+class Split(Scene):
+    """net (img), da (img), net_text, da_text, net_focus, da_focus"""
+    dur = 2.4
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.a = photo(s['net']); self.b = photo(s['da'])
+        self.fa = s.get('net_focus', [W / 2, H / 2]); self.fb = s.get('da_focus', [W / 2, H / 2])
+        self.la = pill('НЕТ', RED, s.get('net_text', ''), maxw=680, size=56); self.lb = pill('ДА', GREEN, s.get('da_text', ''), maxw=600, size=56)
+        self.ya = 272 + self.la.height / 2; self.yb = H // 2 + 30 + self.lb.height / 2
+        self.add_text((SAFE[0], self.ya - self.la.height / 2, SAFE[0] + self.la.width, self.ya + self.la.height / 2), 54, WHITE, True, s.get('net_text', ''))
+        self.add_text((SAFE[0], self.yb - self.lb.height / 2, SAFE[0] + self.lb.width, self.yb + self.lb.height / 2), 54, WHITE, True, s.get('da_text', ''))
+    def half(self, img, f, z):
+        h = H // 2; cw, ch = W / z, h / z
+        x = min(max(f[0] - cw / 2, 0), W - cw); y = min(max(f[1] - ch / 2, 0), H - ch)
+        return img.resize((W, h), Image.BICUBIC, box=(x, y, x + cw, y + ch))
+    def bg(self, t):
+        o = Image.new('RGB', (W, H), DARK); z = 1.6 + 0.12 * t / self.dur
+        pa = ease(t / 0.3); pb = ease((t - 0.35) / 0.3)
+        o.paste(self.half(self.a, self.fa, z), (int(-W * (1 - pa)), 0))
+        if pb > 0: o.paste(self.half(self.b, self.fb, z), (int(W * (1 - pb)), H // 2))
+        return o
+    def frame(self, t):
+        out = self.bg(t).convert('RGBA'); d = ImageDraw.Draw(out)
+        d.rectangle([0, H // 2 - 5, W * ease((t - 0.3) / 0.3), H // 2 + 5], fill=WHITE + (255,))
+        a = back((t - 0.2) / 0.22); b = back((t - 0.6) / 0.22)
+        if a > 0: paste(out, self.la, SAFE[0] + self.la.width / 2, self.ya, scale=a)
+        if b > 0: paste(out, self.lb, SAFE[0] + self.lb.width / 2, self.yb, scale=b)
+        return out
+    def events(self): return [(0.0, 'whoosh', 1), (0.2, 'buzz', 0.8), (0.35, 'whoosh', 1), (0.6, 'ding', 0.9)]
+
+# ---------- большая цифра / акцент ----------
+class BigNum(Scene):
+    """value ('№4'), title, sub, img (фон, размыт), shake"""
+    dur = 1.6
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.img = photo(s['img']).filter(ImageFilter.GaussianBlur(16)) if s.get('img') else None
+        self.v = s['value']; self.title = s.get('title', ''); self.sub = s.get('sub', '')
+        self.vs = fit_size(self.v, 330, 'Black', 900); self.ts = fit_size(self.title, 92, 'Black', 940) if self.title else 0
+        tw = tlen(self.v, font(self.vs)); self.add_text((W / 2 - tw / 2, 430, W / 2 + tw / 2, 430 + self.vs), self.vs, GOLD, False, self.v)
+        if self.title: tw = tlen(self.title, font(self.ts)); self.add_text((W / 2 - tw / 2, 820, W / 2 + tw / 2, 820 + self.ts * 1.1), self.ts, WHITE, False, self.title)
+    def bg(self, t):
+        if self.img is None: return Image.new('RGB', (W, H), NAVY)
+        o = cam(self.img, 1.05 + 0.05 * t / self.dur)[0].convert('RGBA'); o.alpha_composite(Image.new('RGBA', (W, H), (8, 12, 20, 185))); return o.convert('RGB')
+    def frame(self, t):
+        out = self.bg(t).convert('RGBA'); a = back(t / 0.3)
+        if a > 0: paste(out, text_layer(self.v, self.vs, GOLD), W / 2, 430 + self.vs * 0.55, scale=2.2 - 1.2 * min(1, a) if a < 1 else 1 + 0.03 * math.sin(t * 9))
+        b = back((t - 0.25) / 0.25)
+        if b > 0 and self.title: paste(out, text_layer(self.title, self.ts, WHITE), W / 2, 820 + self.ts * 0.6, scale=b)
+        if self.s.get('shake', True) and 0.28 < t < 0.5:
+            amp = 18 * (1 - (t - 0.28) / 0.22); dx, dy = _rngf(t).uniform(-amp, amp, 2)
+            c = Image.new('RGBA', (W, H), DARK + (255,)); c.alpha_composite(out, (int(dx), int(dy))); out = c
+        return out
+    def events(self): return [(0.0, 'whoosh_long', 0.8), (0.28, 'boom', 1), (0.3, 'impact', 1)]
+
+LIBRARY.update({'quiz': Quiz, 'lens': Lens, 'split': Split, 'bignum': BigNum})
