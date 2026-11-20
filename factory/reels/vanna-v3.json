@@ -3,6 +3,7 @@
  "title": "Ванная: найдите 4 ошибки (v3, сценарий по битам)",
  "voice": {"file": "media/in/voice/vanna3_vo.mp3", "tempo": 1.1, "sfx_gain": 0.4},
  "captions": true,
+ "loop": true,
  "progress": 4,
  "beats": "HOOK вопрос-вызов → 4 × (лупа на ошибке → как надо) → ПОВОРОТ «самая дорогая» → вопрос в комментарии",
  "scenes": [

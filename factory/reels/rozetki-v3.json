@@ -1,0 +1,21 @@
+{
+ "id": "rozetki-v3",
+ "title": "Розетки на кухне: 4 ошибки (v3)",
+ "voice": {"file": "media/in/voice/rozetki_vo.mp3", "tempo": 1.1, "sfx_gain": 0.4},
+ "captions": true,
+ "loop": true,
+ "progress": 4,
+ "scenes": [
+  {"type": "quiz", "img": "media/in/netda-rozetki/01_moyka_net.jpg", "focus": [285, 1035], "title": "4 ОШИБКИ|С РОЗЕТКАМИ", "sub": "Видно сразу", "count": 3},
+  {"type": "lens", "from": "Над мойкой", "step": 1, "img": "media/in/netda-rozetki/01_moyka_net.jpg", "focus": [285, 1035], "kind": "net", "text": "Розетки над мойкой"},
+  {"type": "split", "from": "Ставим сбоку", "step": 1, "net": "media/in/netda-rozetki/01_moyka_net.jpg", "da": "media/in/netda-rozetki/02_moyka_da.jpg", "net_focus": [285, 1035], "da_focus": [780, 895], "net_text": "Рядом вода", "da_text": "Сбоку от мойки"},
+  {"type": "lens", "from": "За плитой", "step": 2, "img": "media/in/netda-rozetki/03_plita_net.jpg", "focus": [549, 954], "kind": "net", "text": "Розетка за плитой"},
+  {"type": "split", "from": "Правильно", "step": 2, "net": "media/in/netda-rozetki/03_plita_net.jpg", "da": "media/in/netda-rozetki/04_plita_da.jpg", "net_focus": [549, 954], "da_focus": [216, 1069], "net_text": "Жир и жар", "da_text": "Сбоку от плиты"},
+  {"type": "lens", "from": "Одна розетка", "step": 3, "img": "media/in/netda-rozetki/06_udlinitel_da.jpg", "focus": [648, 1350], "kind": "net", "text": "Удлинитель на столешнице"},
+  {"type": "split", "from": "Нужен блок", "step": 3, "net": "media/in/netda-rozetki/06_udlinitel_da.jpg", "da": "media/in/netda-rozetki/07_vytyazhka_net.jpg", "net_focus": [648, 1350], "da_focus": [300, 1020], "net_text": "Одна розетка", "da_text": "Блок розеток"},
+  {"type": "lens", "from": "Провод вытяжки", "step": 4, "img": "media/in/netda-rozetki/05_udlinitel_net.jpg", "focus": [830, 940], "lens_at": [330, 760], "kind": "net", "text": "Провод вытяжки на виду"},
+  {"type": "split", "from": "Прячем", "step": 4, "net": "media/in/netda-rozetki/05_udlinitel_net.jpg", "da": "media/in/netda-rozetki/08b.jpg", "net_focus": [830, 980], "da_focus": [432, 690], "net_text": "Провод на виду", "da_text": "Розетка в шкафу"},
+  {"type": "end_brand", "from": "Розетки планируем", "to_end": true, "tail": 1.4, "captions": false, "line1": "Розетки планируем", "line2": "до ремонта, а не после"}
+ ],
+ "caption": "Розетки на кухне: какую ошибку вы видите чаще всего? Пишите номер 👇\n\n1. Розетки над мойкой: рядом вода\n2. Розетка за плитой: жир, жар и не достать вилку\n3. Одна розетка на всю кухню и удлинитель на столешнице\n4. Провод вытяжки на виду\n\nКак надо: продумать розетки до ремонта. Блоки над столешницей, подальше от воды и плиты, вытяжка подключается в шкафу.\n\nСохраните, чтобы показать электрику.\nРемонт квартир под ключ в Москве, гарантия 3 года. Пишите: @renviks_moscow\n\n#ремонтквартир #ремонткухни #ремонтмосква #дизайнкухни #электрикавквартире"
+}

@@ -13,8 +13,9 @@ from scenes import LIBRARY
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))   # корень репозитория
 BRAND = dict(name='РЕНВИКС', tagline='ремонт квартир под ключ', contact='@renviks_moscow', logo='factory/brand/logo.jpg')
 TR = 0.4   # длительность перехода zoom-blur
-CAP_Y, CAP_X, CAP_W, CAP_SIZE = 1190, LOW_CX, 820, 78   # субтитры по словам: ниже середины, левее кнопок Instagram
+CAP_Y, CAP_X, CAP_W, CAP_SIZE, CAP_CHARS = 1190, LOW_CX, 820, 78, 17   # субтитры по словам: ниже середины, левее кнопок Instagram
 import re
+LOOP = 0.45
 def norm(w): return re.sub(r'[^\wё]', '', w.lower().replace('ё', 'е'))
 
 def resolve(spec):
@@ -76,8 +77,9 @@ class Reel:
     def make_chunks(self):
         out, cur = [], []
         for w in self.words:
-            cur.append(w); txt = ' '.join(x['w'] for x in cur)
-            if w['w'][-1:] in '.?!,:' or len(cur) >= 3 or len(txt) > 16: out.append(cur); cur = []
+            if cur and len(' '.join(x['w'] for x in cur + [w])) > CAP_CHARS: out.append(cur); cur = []
+            cur.append(w)
+            if w['w'][-1:] in '.?!,:' or len(cur) >= 3: out.append(cur); cur = []
         if cur: out.append(cur)
         res = []
         for k, c in enumerate(out):
@@ -94,7 +96,7 @@ class Reel:
         pop = clamp((t - ch['start']) / 0.12)
         size = int(CAP_SIZE * (0.86 + 0.14 * back(pop))); f = font(size, 'Black'); sp = tlen(' ', f)
         ws = [w['w'].upper() for w in ch['words']]; widths = [tlen(w, f) for w in ws]
-        while sum(widths) + sp * (len(ws) - 1) > CAP_W and size > 54:
+        while sum(widths) + sp * (len(ws) - 1) > CAP_W and size > 44:
             size -= 4; f = font(size, 'Black'); sp = tlen(' ', f); widths = [tlen(w, f) for w in ws]
         x = CAP_X - (sum(widths) + sp * (len(ws) - 1)) / 2
         d = ImageDraw.Draw(out)
@@ -133,6 +135,9 @@ class Reel:
             p = (lt - TR / 2) / (TR / 2); out = zoom_blur(out, 1.22 - 0.2 * ease_out(p), 0.22 * (1 - ease_out(p)))
         if sc.enter == 'flash' and lt < 0.12:
             out = Image.blend(out, Image.new('RGB', (W, H), WHITE), 0.6 * (1 - lt / 0.12))
+        if self.cfg.get('loop') and t > self.total - LOOP:      # петля: конец плавно перетекает в первый кадр
+            out = Image.blend(out, self.scenes[0].frame(0.5).convert('RGB'), ease((t - self.total + LOOP) / LOOP))
+            return out
         if self.chunks or self.cfg.get('progress'):
             o = out.convert('RGBA'); self.progress(o, t)
             if self.chunks: self.caption(o, t)

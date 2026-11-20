@@ -1,0 +1,22 @@
+{
+ "id": "plitka-v3",
+ "title": "Приёмка плитки: 4 проверки (v3)",
+ "voice": {"file": "media/in/voice/plitka3_vo.mp3", "tempo": 1.1, "sfx_gain": 0.4},
+ "captions": true,
+ "loop": true,
+ "progress": 4,
+ "scenes": [
+  {"type": "quiz", "img": "media/in/netda-vanna-plitka/t3_net.jpg", "focus": [562, 990], "title": "ПЛИТКУ|ПОЛОЖИЛИ?", "sub": "Проверьте 4 вещи", "count": 3},
+  {"type": "lens", "from": "Первая", "step": 1, "img": "media/in/netda-vanna-plitka/t1_net.jpg", "focus": [562, 990], "kind": "net", "text": "Пластиковый уголок"},
+  {"type": "split", "from": "Правильно", "step": 1, "net": "media/in/netda-vanna-plitka/t1_net.jpg", "da": "media/in/netda-vanna-plitka/t1_da.jpg", "net_focus": [562, 990], "da_focus": [540, 900], "net_text": "Уголок", "da_text": "Запил 45°"},
+  {"type": "lens", "from": "Вторая", "step": 2, "img": "media/in/netda-vanna-plitka/t2_net.jpg", "focus": [590, 945], "kind": "net", "text": "Узкая полоска у стены"},
+  {"type": "split", "from": "Значит", "step": 2, "net": "media/in/netda-vanna-plitka/t2_net.jpg", "da": "media/in/netda-vanna-plitka/t2_da.jpg", "net_focus": [590, 945], "da_focus": [540, 900], "net_text": "Подрезка", "da_text": "Раскладка заранее"},
+  {"type": "lens", "from": "Третья", "step": 3, "img": "media/in/netda-vanna-plitka/t3_net.jpg", "focus": [562, 990], "kind": "net", "text": "Кривые швы, перепады"},
+  {"type": "split", "from": "Проведите", "step": 3, "net": "media/in/netda-vanna-plitka/t3_net.jpg", "da": "media/in/netda-vanna-plitka/t3_da.jpg", "net_focus": [562, 990], "da_focus": [450, 900], "net_text": "Перепады", "da_text": "Ровная стена"},
+  {"type": "bignum", "from": "И та", "step": 4, "img": "media/in/netda-vanna-plitka/t4_net.jpg", "value": "№4", "title": "БЕСИТ КАЖДЫЙ ДЕНЬ", "captions": false},
+  {"type": "lens", "from": "Розетка на стыке", "step": 4, "img": "media/in/netda-vanna-plitka/t4_net.jpg", "focus": [495, 945], "kind": "net", "text": "Розетка на стыке"},
+  {"type": "split", "from": "Её ставят", "step": 4, "net": "media/in/netda-vanna-plitka/t4_net.jpg", "da": "media/in/netda-vanna-plitka/t4_da.jpg", "net_focus": [495, 945], "da_focus": [517, 967], "net_text": "На стыке", "da_text": "По центру"},
+  {"type": "end_brand", "from": "Сколько ошибок", "to_end": true, "tail": 1.6, "captions": false, "line1": "Сколько ошибок у вас?", "line2": "Пишите в комментариях"}
+ ],
+ "caption": "Плиточник говорит «готово». Проверьте 4 вещи, прежде чем подписывать приёмку 👇\n\n1. Внешний угол: пластиковый уголок вместо запила под 45°\n2. Узкая полоска плитки у стены: раскладку не продумали\n3. Кривые швы и перепады: проведите ладонью\n4. Розетка на стыке плиток вместо центра плитки\n\nСколько нашли у себя? Пишите в комментариях.\nСохраните перед приёмкой ремонта.\n\nРемонт квартир под ключ в Москве, гарантия 3 года: @renviks_moscow\n\n#укладкаплитки #плитка #ремонтквартир #ремонтмосква #приемкаремонта"
+}
