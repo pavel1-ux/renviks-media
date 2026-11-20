@@ -484,12 +484,10 @@ class Countdown(Scene):
         k, lt = self._at(t); it = self.items[k]; d = self.durs[k]
         z = 1.12 - 0.08 * lt / d if k % 2 else 1.04 + 0.08 * lt / d
         f = it.get('focus', [W / 2, H / 2]); o = cam(it['im'], z, *f)[0]
-        o = ImageEnhance.Color(o).enhance(0.55); return ImageEnhance.Brightness(o).enhance(0.8)
+        o = ImageEnhance.Color(o).enhance(0.55); o = ImageEnhance.Brightness(o).enhance(0.7).convert('RGBA')
+        o.alpha_composite(_spot()); return o.convert('RGB')
     def frame(self, t):
         k, lt = self._at(t); out = self.bg(t).convert('RGBA')
-        out.alpha_composite(Image.new('RGBA', (W, H), (0, 0, 0, 70)))
-        sp = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(sp).ellipse([W / 2 - 260, 520, W / 2 + 260, 1000], fill=(0, 0, 0, 120))
-        out.alpha_composite(sp.filter(ImageFilter.GaussianBlur(60)))
         num = str(self.n0 - k); p = back(lt / 0.12)
         paste(out, text_layer(num, 300, WHITE), W / 2, 720, scale=1.35 - 0.35 * min(1, p))
         lab = self.items[k].get('label')
@@ -505,6 +503,13 @@ class Countdown(Scene):
         for k, st in enumerate(self.starts):
             e += [(st, 'tick', 1.6), (st, 'pop', 0.6 + 0.4 * k / len(self.starts))]
         return e
+
+_SPOT = []
+def _spot():
+    if not _SPOT:
+        sp = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(sp).ellipse([W / 2 - 380, 480, W / 2 + 380, 1040], fill=(0, 0, 0, 105))
+        _SPOT.append(sp.filter(ImageFilter.GaussianBlur(110)))
+    return _SPOT[0]
 
 # ---------- раскрытие: вспышка → медленный наезд на «после» + заголовок по строкам ----------
 class Reveal(Scene):
