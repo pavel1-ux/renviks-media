@@ -17,7 +17,7 @@ jobs:
         with: { python-version: '3.11' }
       - name: Whisper
         run: |
-          pip install -q faster-whisper==1.1.1
+          pip install -q faster-whisper==1.1.1 requests
           python factory/zavod/align.py media/in/voice
       - name: Commit
         run: |
