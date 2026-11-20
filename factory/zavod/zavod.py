@@ -204,7 +204,7 @@ class Reel:
         os.makedirs(out_dir, exist_ok=True); wav = os.path.join(out_dir, '_sfx.wav'); mp4 = os.path.join(out_dir, 'reel.mp4')
         self.audio(wav)
         p = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
-                              '-i', '-', '-i', wav, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '21', '-pix_fmt', 'yuv420p',
+                              '-i', '-', '-i', wav, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '21', '-maxrate', '9M', '-bufsize', '18M', '-pix_fmt', 'yuv420p',
                               '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', mp4], stdin=subprocess.PIPE)
         for fi in range(int(self.total * FPS)): p.stdin.write(self.frame(fi / FPS).tobytes())
         p.stdin.close(); p.wait(); os.remove(wav)

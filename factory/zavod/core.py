@@ -206,8 +206,10 @@ def blur_text(text, size, col, wt='SemiBold', p=1.0, shadow=True, track=0):
     tw = int(d0.textlength(text, font=f) + track * len(text)) + 80; th = int(size * 1.5) + 40
     l = Image.new('RGBA', (tw, th), (0, 0, 0, 0)); d = ImageDraw.Draw(l)
     if shadow:
-        sh = Image.new('RGBA', (tw, th), (0, 0, 0, 0)); ImageDraw.Draw(sh).text((40, 26), text, font=f, fill=(0, 0, 0, 140))
-        l.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
+        sh = Image.new('RGBA', (tw, th), (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
+        sd.rounded_rectangle([20, 10, tw - 20, th - 6], radius=th // 2, fill=(0, 0, 0, 95))      # мягкая тень-подложка
+        sd.text((40, 24), text, font=f, fill=(0, 0, 0, 200))
+        l.alpha_composite(sh.filter(ImageFilter.GaussianBlur(14)))
     if track:
         x = 40
         for ch in text: d.text((x, 20), ch, font=f, fill=col + (255,)); x += d0.textlength(ch, font=f) + track

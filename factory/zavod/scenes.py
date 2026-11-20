@@ -561,10 +561,10 @@ class HookIntro(Scene):
         self.img = photo(s['img'], s.get('exposure', 1.0), s.get('contrast', 1.0)); self.f = s.get('focus', [W / 2, H / 2])
         self.word = s.get('word', ''); self.ws = s.get('word_size', 120)
         self.lines = s.get('lines', []); self.ls = s.get('line_size', 62)
-        f = ifont(self.ws, 'Black'); tw = tlen(self.word, f); self.add_text((W / 2 - tw / 2, 420, W / 2 + tw / 2, 420 + self.ws), self.ws, LIME, False, self.word)
+        f = ifont(self.ws, 'Black'); tw = tlen(self.word, f); self.add_text((W / 2 - tw / 2, 420, W / 2 + tw / 2, 420 + self.ws), self.ws, LIME, True, self.word)
         y = 1120
         for l in self.lines:
-            tw = tlen(l.strip('*'), ifont(self.ls, 'Bold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.ls * 1.05), self.ls, WHITE, False, l.strip('*')); y += self.ls * 1.22
+            tw = tlen(l.strip('*'), ifont(self.ls, 'Bold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.ls * 1.05), self.ls, WHITE, True, l.strip('*')); y += self.ls * 1.22
     def bg(self, t): return shake_cam(self.img, 1.0 + 0.05 * t / self.dur, *self.f, t, seed=self.s.get('seed', 3))[0]
     def frame(self, t):
         out = self.bg(t).convert('RGBA')
@@ -593,7 +593,7 @@ class MatQuiz(Scene):
         y = s.get('q_y', 1180)
         self.qy = []
         for l in self.q:
-            tw = tlen(l, ifont(self.qs, 'SemiBold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.qs * 1.05), self.qs, WHITE, False, l); self.qy.append(y); y += self.qs * 1.22
+            tw = tlen(l, ifont(self.qs, 'SemiBold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.qs * 1.05), self.qs, WHITE, True, l); self.qy.append(y); y += self.qs * 1.22
         self.rc = s.get('ring_at', [860, 300])
     def bg(self, t): return shake_cam(self.img, 1.0 + 0.06 * t / self.dur, *self.f, t, amp=5, seed=self.s.get('seed', self.idx if hasattr(self, 'idx') else 1))[0]
     def frame(self, t):
@@ -627,7 +627,7 @@ class MatQuiz(Scene):
     def texts(self):
         tx = list(self._texts)
         for a in self.ans:
-            tw = tlen(a['text'], ifont(self.as_, 'Bold')); x, y = a['at']; tx.append(dict(box=[int(x - tw / 2), int(y - self.as_ * 0.6), int(x + tw / 2), int(y + self.as_ * 0.6)], size=self.as_, color=WHITE, panel=False, what=a['text']))
+            tw = tlen(a['text'], ifont(self.as_, 'Bold')); x, y = a['at']; tx.append(dict(box=[int(x - tw / 2), int(y - self.as_ * 0.6), int(x + tw / 2), int(y + self.as_ * 0.6)], size=self.as_, color=WHITE, panel=True, what=a['text']))
         return tx
     def settled(self): return self.t_rev + 0.6
     def events(self):
