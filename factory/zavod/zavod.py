@@ -184,6 +184,16 @@ class Reel:
         def add(s, at, g=1.0):
             i = max(0, int(at * SR)); seg = s[:max(0, len(buf) - i)] * g; buf[i:i + len(seg)] += seg
         if self.cfg.get('ambient'): add(sfx('room')[:len(buf)], 0)
+        mu = self.cfg.get('music')
+        if mu:                                             # музыкальная подложка: обрезка, затухание в конце
+            src = mu['file'] if os.path.isabs(mu['file']) else os.path.join(ROOT, mu['file'])
+            raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(mu.get('start', 0)), '-i', src, '-f', 's16le', '-ac', '1', '-ar', str(SR), '-'],
+                                 capture_output=True, check=True).stdout
+            m = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+            m = m / max(1e-6, np.abs(m).max())
+            n = len(buf); m = np.tile(m, int(n / max(1, len(m))) + 1)[:n]
+            fo = int(mu.get('fade_out', 1.2) * SR); m[-fo:] *= np.linspace(1, 0, fo); fi = int(0.05 * SR); m[:fi] *= np.linspace(0, 1, fi)
+            add(m, 0, mu.get('gain', 0.5))
         vo = self.cfg.get('voice'); duck = 1.0
         if vo:
             src = vo['file'] if os.path.isabs(vo['file']) else os.path.join(ROOT, vo['file'])
