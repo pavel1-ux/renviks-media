@@ -456,3 +456,93 @@ class BigNum(Scene):
     def events(self): return [(0.0, 'whoosh_long', 0.8), (0.28, 'boom', 1), (0.3, 'impact', 1)]
 
 LIBRARY.update({'quiz': Quiz, 'lens': Lens, 'split': Split, 'bignum': BigNum})
+
+# ================= v4: монтажные сцены по разбору топ-рилсов =================
+
+# ---------- обратный отсчёт: быстрые склейки с ускорением + крупная цифра ----------
+class Countdown(Scene):
+    """imgs: [путь | {img, label, focus}], start_n (по умолч. len), d0/d1 — длительность первого/последнего кадра (ускорение),
+    title — надпись сверху на всём отсчёте"""
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.items = [x if isinstance(x, dict) else {'img': x} for x in s['imgs']]
+        for it in self.items:
+            if not os.path.isabs(it['img']): it['img'] = os.path.join(ctx['root'], it['img'])
+            it['im'] = photo(it['img'], s.get('exposure', 1.0), s.get('contrast', 1.0))
+        n = len(self.items); d0, d1 = s.get('d0', 0.75), s.get('d1', 0.22)
+        self.durs = [d0 + (d1 - d0) * (k / max(1, n - 1)) ** 0.8 for k in range(n)]
+        self.dur = sum(self.durs); self.starts = [sum(self.durs[:k]) for k in range(n)]
+        self.n0 = s.get('start_n', n); self.title = s.get('title', '')
+        self.ts = fit_size(self.title, 66, 'Black', 940) if self.title else 0
+        if self.title: tw = tlen(self.title, font(self.ts)); self.add_text((W / 2 - tw / 2, 260, W / 2 + tw / 2, 260 + self.ts * 1.2), self.ts, WHITE, True, self.title)
+        self.add_text((W / 2 - 170, 560, W / 2 + 170, 860), 260, WHITE, False, '10')
+    def _at(self, t):
+        k = 0
+        while k + 1 < len(self.starts) and t >= self.starts[k + 1]: k += 1
+        return k, t - self.starts[k]
+    def bg(self, t):
+        k, lt = self._at(t); it = self.items[k]; d = self.durs[k]
+        z = 1.12 - 0.08 * lt / d if k % 2 else 1.04 + 0.08 * lt / d
+        f = it.get('focus', [W / 2, H / 2]); o = cam(it['im'], z, *f)[0]
+        o = ImageEnhance.Color(o).enhance(0.55); return ImageEnhance.Brightness(o).enhance(0.8)
+    def frame(self, t):
+        k, lt = self._at(t); out = self.bg(t).convert('RGBA')
+        out.alpha_composite(Image.new('RGBA', (W, H), (0, 0, 0, 70)))
+        sp = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(sp).ellipse([W / 2 - 260, 520, W / 2 + 260, 1000], fill=(0, 0, 0, 120))
+        out.alpha_composite(sp.filter(ImageFilter.GaussianBlur(60)))
+        num = str(self.n0 - k); p = back(lt / 0.12)
+        paste(out, text_layer(num, 300, WHITE), W / 2, 720, scale=1.35 - 0.35 * min(1, p))
+        lab = self.items[k].get('label')
+        if lab: paste(out, text_layer(lab, 58, GOLD, 'ExtraBold'), W / 2, 930, alpha=clamp(lt / 0.08))
+        if self.title:
+            f = font(self.ts); tw = tlen(self.title, f); d = ImageDraw.Draw(out)
+            d.rounded_rectangle([W / 2 - tw / 2 - 30, 250, W / 2 + tw / 2 + 30, 260 + self.ts * 1.35], radius=24, fill=DARK + (220,))
+            d.text((W / 2, 260 + self.ts * 0.65), self.title, font=f, fill=WHITE, anchor='mm')
+        if lt < 0.05: out = Image.alpha_composite(out, Image.new('RGBA', (W, H), (255, 255, 255, int(110 * (1 - lt / 0.05)))))
+        return out
+    def events(self):
+        e = []
+        for k, st in enumerate(self.starts):
+            e += [(st, 'tick', 1.6), (st, 'pop', 0.6 + 0.4 * k / len(self.starts))]
+        return e
+
+# ---------- раскрытие: вспышка → медленный наезд на «после» + заголовок по строкам ----------
+class Reveal(Scene):
+    """img, lines (заголовок, по строкам), sub, focus, z0/z1"""
+    dur = 3.5
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.img = photo(s['img'], s.get('exposure', 1.0), s.get('contrast', 1.0)); self.f = s.get('focus', [W / 2, H / 2])
+        self.lines = s.get('lines', []); self.sub = s.get('sub', '')
+        self.size = min([fit_size(l, s.get('size', 104), 'Black', 940) for l in self.lines] or [104])
+        y = s.get('y', 300)
+        self.ys = []
+        for l in self.lines:
+            tw = tlen(l, font(self.size)); self.add_text((W / 2 - tw / 2, y, W / 2 + tw / 2, y + self.size * 1.1), self.size, WHITE, False, l); self.ys.append(y); y += self.size * 1.15
+        self.ysub = y + 16
+        if self.sub:
+            self.ss = fit_size(self.sub, 54, 'ExtraBold', 900); tw = tlen(self.sub, font(self.ss, 'ExtraBold'))
+            self.add_text((W / 2 - tw / 2 - 30, self.ysub, W / 2 + tw / 2 + 30, self.ysub + self.ss * 1.5), self.ss, DARK, True, self.sub)
+    def z(self, t): return self.s.get('z0', 1.18) + (self.s.get('z1', 1.0) - self.s.get('z0', 1.18)) * ease_out(t / self.dur)
+    def bg(self, t):
+        o = cam(self.img, self.z(t), *self.f)[0]
+        g = Image.new('RGBA', (W, H), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+        for k in range(36): gd.rectangle([0, k * 24, W, k * 24 + 24], fill=(0, 0, 0, int(140 * (1 - k / 36))))
+        o = o.convert('RGBA'); o.alpha_composite(g); return o.convert('RGB')
+    def frame(self, t):
+        out = self.bg(t).convert('RGBA')
+        for k, (l, y) in enumerate(zip(self.lines, self.ys)):
+            a = ease_out((t - 0.35 - 0.18 * k) / 0.35)
+            if a > 0: paste(out, text_layer(l, self.size, WHITE), W / 2, y + self.size * 0.6 + 40 * (1 - a), alpha=a)
+        if self.sub:
+            a = back((t - 0.9) / 0.25)
+            if a > 0:
+                f = font(self.ss, 'ExtraBold'); tw = tlen(self.sub, f)
+                lay = Image.new('RGBA', (int(tw + 60), int(self.ss * 1.5)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+                ld.rounded_rectangle([0, 0, lay.width - 1, lay.height - 1], radius=26, fill=GOLD + (255,)); ld.text((lay.width / 2, lay.height / 2), self.sub, font=f, fill=DARK, anchor='mm')
+                paste(out, lay, W / 2, self.ysub + lay.height / 2, scale=a)
+        if t < 0.35: out = Image.alpha_composite(out, Image.new('RGBA', (W, H), (255, 255, 255, int(255 * (1 - t / 0.35) ** 2))))
+        return out
+    def events(self): return [(0, 'boom', 1), (0.02, 'impact', 1), (0.1, 'shimmer', 1), (0.9, 'pop', 0.8)]
+
+LIBRARY.update({'countdown': Countdown, 'reveal': Reveal})

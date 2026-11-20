@@ -15,7 +15,7 @@ BRAND = dict(name='РЕНВИКС', tagline='ремонт квартир под 
 TR = 0.4   # длительность перехода zoom-blur
 CAP_Y, CAP_X, CAP_W, CAP_SIZE, CAP_CHARS = 1190, LOW_CX, 820, 78, 17   # субтитры по словам: ниже середины, левее кнопок Instagram
 import re
-LOOP = 0.45
+LOOP = 0.3
 def norm(w): return re.sub(r'[^\wё]', '', w.lower().replace('ё', 'е'))
 
 def resolve(spec):
