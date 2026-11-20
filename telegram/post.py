@@ -46,8 +46,9 @@ def main():
     post = json.load(open(path, encoding='utf-8'))
     kind = post.get('type', 'text')
     common = dict(chat_id=CHAT, parse_mode='HTML')
+    sent = None
     if kind == 'text':
-        api('sendMessage', text=post['text'], disable_web_page_preview='true', **common)
+        sent = api('sendMessage', text=post['text'], disable_web_page_preview='true', **common)
     elif kind == 'video':
         api('sendVideo', video=REPO_RAW + post['media'], caption=post.get('text', ''), supports_streaming='true', **common)
     elif kind == 'photo':
@@ -59,6 +60,9 @@ def main():
             is_anonymous='true', allows_multiple_answers='false')
     else:
         raise SystemExit(f'Неизвестный тип поста: {kind}')
+    if post.get('pin') and sent:                       # закрепить сообщение в канале
+        api('pinChatMessage', chat_id=CHAT, message_id=sent['result']['message_id'], disable_notification='true')
+        print('Закреплено')
     with open(posted_path, 'a', encoding='utf-8') as f:
         f.write(day + '\n')
     print(f'Опубликовано: {day} ({kind})')
