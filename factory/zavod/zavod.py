@@ -24,8 +24,10 @@ def resolve(spec):
     return spec
 
 class Reel:
-    def __init__(self, path):
+    def __init__(self, path, variant=None):
         self.cfg = json.load(open(path)); self.id = self.cfg.get('id', os.path.splitext(os.path.basename(path))[0])
+        if variant is not None:                       # вариант крючка: подменяет поля первой сцены (для Trial Reels / A-B)
+            self.cfg['scenes'][0].update(self.cfg['hooks'][variant]); self.id += f'-h{variant + 1}'
         brand = dict(BRAND, **self.cfg.get('brand', {}))
         if brand.get('logo') and not os.path.isabs(brand['logo']): brand['logo'] = os.path.join(ROOT, brand['logo'])
         if brand.get('logo') and not os.path.exists(brand['logo']): brand['logo'] = None
@@ -214,7 +216,8 @@ class Reel:
         return mp4
 
 if __name__ == '__main__':
-    cmd, path = sys.argv[1], sys.argv[2]; r = Reel(path)
+    cmd, path = sys.argv[1], sys.argv[2]
+    var = next((int(a.split('=')[1]) - 1 for a in sys.argv if a.startswith('--hook=')), None); r = Reel(path, var)
     probs = r.check()
     print(f'{r.id}: {len(r.scenes)} сцен, {r.total:.1f} с'); print('\n'.join('  ! ' + p for p in probs) or '  проверка: всё чисто')
     if cmd == 'stills':
