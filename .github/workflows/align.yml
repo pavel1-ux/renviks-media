@@ -1,0 +1,28 @@
+name: align-voice
+# голос → тайминги каждого слова (для субтитров «по словам»)
+# кладём mp3 в media/in/voice/ → рядом появляется <имя>.words.json
+on:
+  push:
+    paths: ['media/in/voice/*.mp3', 'media/in/voice/*.wav', 'factory/zavod/align.py']
+  workflow_dispatch:
+concurrency: repo-autopost
+permissions:
+  contents: write
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Whisper
+        run: |
+          pip install -q faster-whisper==1.1.1
+          python factory/zavod/align.py media/in/voice
+      - name: Commit
+        run: |
+          git config user.name "media-bot"
+          git config user.email "media-bot@users.noreply.github.com"
+          git add media/in/voice
+          git diff --cached --quiet || git commit -m "voice: word timings"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
