@@ -7,7 +7,9 @@
   {"text": "до 500 символов",
    "topic": "Ремонт",                       # тег сообщества (необязательно, по умолчанию «Ремонт»)
    "images": ["threads/media/x.jpg", ...],  # необязательно: 1 фото = пост с фото, 2–10 = карусель
-   "poll": ["вариант A", "вариант B", ...]}  # необязательно: опрос, 2–4 варианта (только для текстового поста)
+   "poll": ["вариант A", "вариант B", ...],  # необязательно: опрос, 2–4 варианта (только для текстового поста)
+   "video": "media/out/x.mp4",              # необязательно: пост-видео (рилс), до 5 мин
+   "chain": ["продолжение 1", ...]}         # необязательно: серия — ответы на свой пост (мини-тред)
 Картинки берутся из публичного репозитория по raw-ссылке.
 Секреты: THREADS_TOKEN, THREADS_USER_ID.
 """
@@ -64,7 +66,10 @@ def publish(post):
     topic = post.get('topic', DEFAULT_TOPIC)
     if topic: extra['topic_tag'] = topic
     imgs = post.get('images') or []
-    if len(imgs) == 1:
+    if post.get('video'):
+        c = make(media_type='VIDEO', video_url=url_of(post['video']), text=text, **extra)
+        wait_ready(c['id'], tries=60)
+    elif len(imgs) == 1:
         c = make(media_type='IMAGE', image_url=url_of(imgs[0]), text=text, **extra)
         wait_ready(c['id'])
     elif len(imgs) > 1:
@@ -82,7 +87,12 @@ def publish(post):
         c = make(media_type='TEXT', text=text, **extra)
         time.sleep(5)
     r = call('POST', f'{API}/{USER}/threads_publish', creation_id=c['id'])
-    return r.get('id')
+    pid = r.get('id'); prev = pid
+    for part in post.get('chain') or []:                 # мини-тред: каждое продолжение — ответ на предыдущее
+        time.sleep(8)
+        k = call('POST', f'{API}/{USER}/threads', media_type='TEXT', text=part[:500], reply_to_id=prev)
+        time.sleep(5); prev = call('POST', f'{API}/{USER}/threads_publish', creation_id=k['id']).get('id')
+    return pid
 
 
 def refresh_token_info():
