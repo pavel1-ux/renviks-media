@@ -551,3 +551,88 @@ class Reveal(Scene):
     def events(self): return [(0, 'boom', 1), (0.02, 'impact', 1), (0.1, 'shimmer', 1), (0.9, 'pop', 0.8)]
 
 LIBRARY.update({'countdown': Countdown, 'reveal': Reveal})
+
+# ================= v5: квиз «отличите материал от еды» с «человеческим» монтажом =================
+class HookIntro(Scene):
+    """img, word (крупно лаймом сверху), lines (вопрос снизу; строка с * — лаймом), seed"""
+    dur = 2.4
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.img = photo(s['img'], s.get('exposure', 1.0), s.get('contrast', 1.0)); self.f = s.get('focus', [W / 2, H / 2])
+        self.word = s.get('word', ''); self.ws = s.get('word_size', 120)
+        self.lines = s.get('lines', []); self.ls = s.get('line_size', 62)
+        f = ifont(self.ws, 'Black'); tw = tlen(self.word, f); self.add_text((W / 2 - tw / 2, 420, W / 2 + tw / 2, 420 + self.ws), self.ws, LIME, False, self.word)
+        y = 1120
+        for l in self.lines:
+            tw = tlen(l.strip('*'), ifont(self.ls, 'Bold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.ls * 1.05), self.ls, WHITE, False, l.strip('*')); y += self.ls * 1.22
+    def bg(self, t): return shake_cam(self.img, 1.0 + 0.05 * t / self.dur, *self.f, t, seed=self.s.get('seed', 3))[0]
+    def frame(self, t):
+        out = self.bg(t).convert('RGBA')
+        g = Image.new('RGBA', (W, H), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+        for k in range(30): gd.rectangle([0, H - (k + 1) * 30, W, H - k * 30], fill=(0, 0, 0, int(150 * (1 - k / 30))))
+        out.alpha_composite(g)
+        if self.word:
+            p = (t - 0.12) / 0.35; l = blur_text(self.word, self.ws, LIME, 'Black', p)
+            paste(out, l, W / 2 + 60 * (1 - ease_out(p)), 420 + self.ws * 0.5)
+        y = 1120
+        for k, line in enumerate(self.lines):
+            p = (t - 0.45 - 0.15 * k) / 0.35; col = LIME if line.startswith('*') else WHITE
+            paste(out, blur_text(line.strip('*'), self.ls, col, 'Bold', p), LOW_CX, y + self.ls * 0.55 + 18 * (1 - ease_out(p)))
+            y += self.ls * 1.22
+        return out
+    def events(self): return [(0.12, 'whoosh', 0.7), (0.15, 'pop', 0.8), (0.45, 'pop', 0.6)]
+
+class MatQuiz(Scene):
+    """img, question (строки через |), answers [{text, at:[x,y]}], count (сек отсчёта), hold (сек показа ответа), focus, seed"""
+    def __init__(self, s, ctx):
+        super().__init__(s, ctx)
+        self.img = photo(s['img'], s.get('exposure', 1.0), s.get('contrast', 1.0)); self.f = s.get('focus', [W / 2, H / 2])
+        self.q = s['question'].split('|'); self.qs = s.get('q_size', 50); self.count = s.get('count', 5); self.hold = s.get('hold', 1.5)
+        self.t_rev = 0.25 + self.count; self.dur = s.get('dur', self.t_rev + self.hold)
+        self.ans = s.get('answers', []); self.as_ = s.get('a_size', 50)
+        y = s.get('q_y', 1180)
+        self.qy = []
+        for l in self.q:
+            tw = tlen(l, ifont(self.qs, 'SemiBold')); self.add_text((LOW_CX - tw / 2, y, LOW_CX + tw / 2, y + self.qs * 1.05), self.qs, WHITE, False, l); self.qy.append(y); y += self.qs * 1.22
+        self.rc = s.get('ring_at', [860, 300])
+    def bg(self, t): return shake_cam(self.img, 1.0 + 0.06 * t / self.dur, *self.f, t, amp=5, seed=self.s.get('seed', self.idx if hasattr(self, 'idx') else 1))[0]
+    def frame(self, t):
+        out = self.bg(t).convert('RGBA'); d = ImageDraw.Draw(out)
+        # вопрос: blur-in, перед ответом — blur-out
+        for k, (l, y) in enumerate(zip(self.q, self.qy)):
+            p_in = (t - 0.1 - 0.12 * k) / 0.35; p_out = 1 - (t - self.t_rev + 0.25) / 0.3
+            p = min(p_in, p_out)
+            if p > 0: paste(out, blur_text(l, self.qs, WHITE, 'SemiBold', p), LOW_CX - 30 * (1 - ease_out(min(1, p_in))), y + self.qs * 0.55)
+        # отсчёт: тонкое кольцо, которое «стекает» каждую секунду, и цифра
+        if t < self.t_rev + 0.35:
+            cx, cy = self.rc; r = 62; el = t - 0.25
+            n = max(0, self.count - int(max(0, el))) if el < self.count else 0
+            frac = 1 - (el - math.floor(el)) if 0 <= el < self.count else 0
+            a_in = ease(t / 0.25); a_out = 1 - ease((t - self.t_rev) / 0.35)
+            alpha = int(255 * min(a_in, a_out))
+            if alpha > 4:
+                lay = Image.new('RGBA', (2 * r + 40, 2 * r + 40), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+                ld.ellipse([20, 20, 2 * r + 20, 2 * r + 20], outline=(255, 255, 255, 70), width=4)
+                if frac > 0: ld.arc([20, 20, 2 * r + 20, 2 * r + 20], -90, -90 + 360 * frac, fill=(120, 190, 255, 255), width=6)
+                ft = ifont(64, 'Medium'); ld.text((r + 20, r + 22), str(n), font=ft, fill=(255, 255, 255, 255), anchor='mm')
+                pop = 1 + 0.12 * (1 - ease(min(1, (el - math.floor(el)) / 0.15))) if el >= 0 else 1
+                lay.putalpha(lay.split()[3].point(lambda v: int(v * alpha / 255)))
+                paste(out, lay, cx, cy, scale=pop)
+        # ответы: подписи над кучками
+        for k, a in enumerate(self.ans):
+            p = (t - self.t_rev - 0.08 * k) / 0.3
+            if p > 0:
+                x, y = a['at']; paste(out, blur_text(a['text'], self.as_, a.get('color', WHITE) if isinstance(a.get('color'), tuple) else WHITE, 'Bold', p), x, y - 12 * (1 - ease_out(p)))
+        return out
+    def texts(self):
+        tx = list(self._texts)
+        for a in self.ans:
+            tw = tlen(a['text'], ifont(self.as_, 'Bold')); x, y = a['at']; tx.append(dict(box=[int(x - tw / 2), int(y - self.as_ * 0.6), int(x + tw / 2), int(y + self.as_ * 0.6)], size=self.as_, color=WHITE, panel=False, what=a['text']))
+        return tx
+    def settled(self): return self.t_rev + 0.6
+    def events(self):
+        e = [(0.1, 'pop', 0.5)] + [(0.25 + k, 'tick', 1.5) for k in range(self.count)]
+        e += [(self.t_rev, 'ding', 0.9), (self.t_rev + 0.02, 'pop', 0.8)]
+        return e
+
+LIBRARY.update({'hook_intro': HookIntro, 'matquiz': MatQuiz})

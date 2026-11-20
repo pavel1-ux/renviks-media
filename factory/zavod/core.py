@@ -188,3 +188,56 @@ def logo_layer(path, width):
 
 def logo_bg(path):
     a = np.asarray(Image.open(path).convert('RGB'), dtype=np.float32); return tuple(int(v) for v in a[:40, :40].reshape(-1, 3).mean(0))
+
+# ---------- v5: «человеческий» монтаж — шрифт Inter Display, blur-in текста, ручная камера, зерно ----------
+INTER = {'Medium': '/usr/share/fonts/opentype/inter/InterDisplay-Medium.otf', 'SemiBold': '/usr/share/fonts/opentype/inter/InterDisplay-SemiBold.otf',
+         'Bold': '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf', 'ExtraBold': '/usr/share/fonts/opentype/inter/InterDisplay-ExtraBold.otf',
+         'Black': '/usr/share/fonts/opentype/inter/InterDisplay-Black.otf'}
+LIME = (226, 240, 70)
+_fi = {}
+def ifont(size, wt='SemiBold'):
+    k = (int(size), wt)
+    if k not in _fi: _fi[k] = ImageFont.truetype(INTER[wt], int(size))
+    return _fi[k]
+
+def blur_text(text, size, col, wt='SemiBold', p=1.0, shadow=True, track=0):
+    """слой текста с анимацией появления «как в CapCut»: p 0→1 = размыто/прозрачно → чётко"""
+    f = ifont(size, wt); d0 = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+    tw = int(d0.textlength(text, font=f) + track * len(text)) + 80; th = int(size * 1.5) + 40
+    l = Image.new('RGBA', (tw, th), (0, 0, 0, 0)); d = ImageDraw.Draw(l)
+    if shadow:
+        sh = Image.new('RGBA', (tw, th), (0, 0, 0, 0)); ImageDraw.Draw(sh).text((40, 26), text, font=f, fill=(0, 0, 0, 140))
+        l.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
+    if track:
+        x = 40
+        for ch in text: d.text((x, 20), ch, font=f, fill=col + (255,)); x += d0.textlength(ch, font=f) + track
+    else: d.text((40, 20), text, font=f, fill=col + (255,))
+    p = clamp(p)
+    if p < 1:
+        r = 14 * (1 - p) ** 1.5
+        if r > 0.3: l = l.filter(ImageFilter.GaussianBlur(r))
+        l.putalpha(l.split()[3].point(lambda v: int(v * ease(p))))
+    return l
+
+def handheld(t, amp=6.0, rot=0.25, seed=1):
+    """плавная «ручная» камера: сумма синусов с несоизмеримыми частотами"""
+    r = np.random.default_rng(seed); ph = r.uniform(0, 6.28, 6)
+    dx = amp * (0.6 * math.sin(0.9 * t + ph[0]) + 0.4 * math.sin(2.3 * t + ph[1]))
+    dy = amp * (0.6 * math.sin(0.7 * t + ph[2]) + 0.4 * math.sin(1.9 * t + ph[3]))
+    a = rot * (0.7 * math.sin(0.5 * t + ph[4]) + 0.3 * math.sin(1.7 * t + ph[5]))
+    return dx, dy, a
+
+def shake_cam(img, z, fx, fy, t, amp=6.0, rot=0.25, seed=1):
+    dx, dy, a = handheld(t, amp, rot, seed)
+    out, box = cam(img, z * 1.03, fx - dx, fy - dy)
+    if abs(a) > 0.01: out = out.rotate(a, Image.BICUBIC, center=(W / 2, H / 2))
+    return out, box
+
+_GR = []
+def grain(img, t, amount=7):
+    if not _GR:
+        r = np.random.default_rng(9)
+        for _ in range(6): _GR.append(r.normal(0, amount, (H // 2, W // 2, 1)).astype(np.float32))
+    g = _GR[int(t * 24) % 6]; g = np.repeat(np.repeat(g, 2, 0), 2, 1)
+    a = np.asarray(img.convert('RGB'), dtype=np.float32) + g
+    return Image.fromarray(a.clip(0, 255).astype(np.uint8))

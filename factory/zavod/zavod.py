@@ -137,6 +137,7 @@ class Reel:
             p = (lt - TR / 2) / (TR / 2); out = zoom_blur(out, 1.22 - 0.2 * ease_out(p), 0.22 * (1 - ease_out(p)))
         if sc.enter == 'flash' and lt < 0.12:
             out = Image.blend(out, Image.new('RGB', (W, H), WHITE), 0.6 * (1 - lt / 0.12))
+        if self.cfg.get('grain'): out = grain(out, t, self.cfg['grain'])
         if self.cfg.get('loop') and t > self.total - LOOP:      # петля: конец плавно перетекает в первый кадр
             out = Image.blend(out, self.scenes[0].frame(0.5).convert('RGB'), ease((t - self.total + LOOP) / LOOP))
             return out
