@@ -1,11 +1,13 @@
-name: Threads — посты (2 в день)
+name: Threads — посты (4–5 в день, кроме вт и вс)
 
 on:
   schedule:
-    - cron: '43 7 * * *'   # утренний пост, 10:43 по Москве
-    - cron: '23 9 * * *'   # запасной запуск утра (если GitHub пропустил первый)
-    - cron: '7 16 * * *'   # вечерний пост, 19:07 по Москве
-    - cron: '37 17 * * *'  # запасной запуск вечера
+    # пн, ср, чт, пт, сб. GitHub обычно запускает с опозданием до часа — реальное время ≈ +1 ч.
+    - cron: '5 6 * * 1,3,4,5,6'    # ~10:00 МСК
+    - cron: '5 9 * * 1,3,4,5,6'    # ~13:00 МСК
+    - cron: '5 12 * * 1,3,4,5,6'   # ~16:00 МСК
+    - cron: '5 15 * * 1,3,4,5,6'   # ~19:00 МСК
+    - cron: '35 17 * * 1,3,4,5,6'  # ~21:30 МСК (пик активности аудитории)
   push:
     branches: [main]
     paths: ['threads/run-now.txt']   # запуск вручную: записать дату в этот файл
@@ -38,9 +40,6 @@ jobs:
         run: |
           DATE="${{ github.event.inputs.date }}"
           if [ "${{ github.event_name }}" = "push" ]; then DATE="$(tr -d ' \n' < threads/run-now.txt)"; fi
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            if [ "$(date -u +%H)" -lt 13 ]; then export SLOT=1; else export SLOT=2; fi
-          fi
           python threads/post.py "$DATE"
       - name: Отметить опубликованное
         run: |
