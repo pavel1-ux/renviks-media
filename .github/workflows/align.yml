@@ -5,7 +5,7 @@ on:
   push:
     paths: ['media/in/voice/*.mp3', 'media/in/voice/*.wav', 'factory/zavod/align.py']
   workflow_dispatch:
-concurrency: repo-autopost
+concurrency: media-pipeline
 permissions:
   contents: write
 jobs:
