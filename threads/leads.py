@@ -31,6 +31,9 @@ def main():
     msk = datetime.now(timezone(timedelta(hours=3)))
     day = msk.strftime('%Y-%m-%d')
     me = get('me', fields='id,username')
+    own_username = me.get('username')
+    if not own_username:
+        raise SystemExit('Threads API не вернул имя подключённого профиля.')
     seen, out, errors = set(), [], []
     for q in QUERIES:
         r = get('keyword_search', q=q, search_type='RECENT',
@@ -40,9 +43,11 @@ def main():
             continue
         posts = r.get('data', [])
         if verify_only:
-            print(f'RECENT «{q}»: API вернул {len(posts)}')
+            own_count = sum(post.get('username') == own_username for post in posts)
+            anonymous_count = sum(not post.get('username') for post in posts)
+            print(f'RECENT «{q}»: всего {len(posts)}, своих {own_count}, без имени {anonymous_count}')
         for p in posts:
-            if p['id'] in seen or p.get('username') == me.get('username'):
+            if p['id'] in seen or p.get('username') == own_username:
                 continue
             seen.add(p['id'])
             p['query'] = q
