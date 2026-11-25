@@ -26,6 +26,7 @@ def get(path, **params):
 
 
 def main():
+    verify_only = '--verify-only' in sys.argv
     msk = datetime.now(timezone(timedelta(hours=3)))
     day = msk.strftime('%Y-%m-%d')
     me = get('me', fields='id,username')
@@ -36,14 +37,22 @@ def main():
         if 'error' in r:
             errors.append({'q': q, 'error': r['error']})
             continue
-        for p in r.get('data', []):
+        posts = r.get('data', [])
+        if verify_only:
+            print(f'RECENT «{q}»: API вернул {len(posts)}')
+        for p in posts:
             if p['id'] in seen or p.get('username') == me.get('username'):
                 continue
             seen.add(p['id'])
             p['query'] = q
             out.append(p)
     print(f'Найдено постов: {len(out)}; ошибок запросов: {len(errors)}')
-    if '--verify-only' in sys.argv:
+    if verify_only:
+        for query in ('ThreadsAPI', 'ремонт', 'ремонт квартиры'):
+            for mode in ('RECENT', 'TOP'):
+                result = get('keyword_search', q=query, search_type=mode, fields='id', limit=10)
+                count = 'ошибка API' if 'error' in result else len(result.get('data', []))
+                print(f'{mode} «{query}»: {count}')
         return int(bool(errors))
     os.makedirs(os.path.join(ROOT, 'leads'), exist_ok=True)
     path = os.path.join(ROOT, 'leads', f'{day}.json')
