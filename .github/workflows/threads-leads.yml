@@ -1,11 +1,15 @@
 name: Threads — поиск постов для ответов
 
 on:
-  # расписание выключено: Meta пока не даёт приложению доступ к поиску (threads_keyword_search требует проверки приложения)
   push:
     branches: [main]
     paths: ['threads/leads-run-now.txt']
   workflow_dispatch:
+    inputs:
+      verify_only:
+        description: Проверка доступа без сохранения результатов
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -24,9 +28,10 @@ jobs:
           python-version: '3.12'
       - name: Поиск
         env:
-          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
-        run: python threads/leads.py
+          THREADS_TOKEN: ${{ secrets.THREADS_SEARCH_TOKEN }}
+        run: python threads/leads.py ${{ inputs.verify_only == true && '--verify-only' || '' }}
       - name: Сохранить
+        if: inputs.verify_only != true
         run: |
           git config user.name "renviks-bot"
           git config user.email "renviks-bot@users.noreply.github.com"

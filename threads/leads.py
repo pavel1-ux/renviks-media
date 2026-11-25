@@ -1,6 +1,6 @@
 """Ищет свежие посты в Threads по ключевым словам и сохраняет кандидатов для ответов в threads/leads/ГГГГ-ММ-ДД.json.
 
-Секрет: THREADS_TOKEN. Нужно разрешение threads_keyword_search.
+Секрет в GitHub: THREADS_SEARCH_TOKEN. Нужно разрешение threads_keyword_search.
 """
 import json, os, sys, urllib.request, urllib.parse
 from datetime import datetime, timedelta, timezone
@@ -42,12 +42,14 @@ def main():
             seen.add(p['id'])
             p['query'] = q
             out.append(p)
+    print(f'Найдено постов: {len(out)}; ошибок запросов: {len(errors)}')
+    if '--verify-only' in sys.argv:
+        return int(bool(errors))
     os.makedirs(os.path.join(ROOT, 'leads'), exist_ok=True)
     path = os.path.join(ROOT, 'leads', f'{day}.json')
     json.dump({'date': day, 'me': me, 'count': len(out), 'posts': out, 'errors': errors},
               open(path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    print(f'Найдено постов: {len(out)}; ошибок запросов: {len(errors)}')
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
